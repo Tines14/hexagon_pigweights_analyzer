@@ -607,14 +607,14 @@ files in cwd:
     if EXCEL_AVAILABLE:
         excel_bytes = build_excel(results)
         st.download_button(
-            label="⬇️  ดาวน์โหลดไฟล์ Excel (.xlsx)",
+            label="⬇️  Download the Excel file (.xlsx).",
             data=excel_bytes,
             file_name="pig_weight_results.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             use_container_width=True,
         )
     else:
-        st.error("❌ ไม่พบ pandas / openpyxl — ติดตั้งด้วย: `pip install pandas openpyxl`")
+        st.error("❌ pandas/openpyxl not found — Install with: `pip install pandas openpyxl`")
 
     # ปุ่มดาวน์โหลดภาพ after ของภาพแรก
     st.download_button(
