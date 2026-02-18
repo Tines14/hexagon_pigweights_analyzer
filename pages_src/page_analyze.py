@@ -580,18 +580,7 @@ files in cwd:
         else:
             st.info("No mask available (Demo mode)")
 
-    # นับ stage
-    stage_counts = {"Pre-Piglet": 0, "Piglet": 0, "Growing": 0, "Market": 0}
-    for r in results:
-        w = r["weight_kg"]
-        if w < 20:
-            stage_counts["Pre-Piglet"] += 1
-        elif w < 35:
-            stage_counts["Piglet"] += 1
-        elif w < 60:
-            stage_counts["Growing"] += 1
-        else:
-            stage_counts["Market"] += 1
+    import streamlit.components.v1 as components
 
     stage_label, stage_color = get_pig_stage(primary['weight_kg'])
 
@@ -612,49 +601,49 @@ files in cwd:
                     {stage_label}
                 </div>
             </div>
-            <div style="flex:0 0 200px; text-align:center;">
-                <div style="font-size:13px; color:#aaa; margin-bottom:8px;">Pig Stage Summary</div>
-                <canvas id="stageChart" width="160" height="160"></canvas>
-                <div style="margin-top:8px; font-size:11px; color:#aaa; line-height:1.8;">
-                    <span style="color:#888888;">●</span> Pre-Piglet: {stage_counts['Pre-Piglet']}<br>
-                    <span style="color:#f39c12;">●</span> Piglet: {stage_counts['Piglet']}<br>
-                    <span style="color:#27ae60;">●</span> Growing: {stage_counts['Growing']}<br>
-                    <span style="color:#e94560;">●</span> Market: {stage_counts['Market']}
-                </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    components.html(f"""
+        <div style="text-align:center; font-family:sans-serif;">
+            <div style="font-size:13px; color:#aaa; margin-bottom:8px;">Pig Stage Summary</div>
+            <canvas id="stageChart" width="160" height="160"></canvas>
+            <div style="margin-top:8px; font-size:12px; color:#aaa; line-height:2;">
+                <span style="color:#888888;">●</span> Pre-Piglet: {stage_counts['Pre-Piglet']}&nbsp;&nbsp;
+                <span style="color:#f39c12;">●</span> Piglet: {stage_counts['Piglet']}<br>
+                <span style="color:#27ae60;">●</span> Growing: {stage_counts['Growing']}&nbsp;&nbsp;
+                <span style="color:#e94560;">●</span> Market: {stage_counts['Market']}
             </div>
         </div>
         <script>
-        (function() {{
-            var canvas = document.getElementById('stageChart');
-            if (!canvas) return;
-            var ctx = canvas.getContext('2d');
-            var data = [{stage_counts['Pre-Piglet']}, {stage_counts['Piglet']}, {stage_counts['Growing']}, {stage_counts['Market']}];
-            var colors = ['#888888', '#f39c12', '#27ae60', '#e94560'];
-            var total = data.reduce((a, b) => a + b, 0) || 1;
-            var cx = 80, cy = 80, r = 65, inner = 40;
-            var start = -Math.PI / 2;
-            data.forEach(function(val, i) {{
-                var slice = (val / total) * 2 * Math.PI;
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.arc(cx, cy, r, start, start + slice);
-                ctx.closePath();
-                ctx.fillStyle = colors[i];
-                ctx.fill();
-                start += slice;
-            }});
+        var canvas = document.getElementById('stageChart');
+        var ctx = canvas.getContext('2d');
+        var data = [{stage_counts['Pre-Piglet']}, {stage_counts['Piglet']}, {stage_counts['Growing']}, {stage_counts['Market']}];
+        var colors = ['#888888', '#f39c12', '#27ae60', '#e94560'];
+        var total = data.reduce((a, b) => a + b, 0) || 1;
+        var cx = 80, cy = 80, r = 65, inner = 40;
+        var start = -Math.PI / 2;
+        data.forEach(function(val, i) {{
+            var slice = (val / total) * 2 * Math.PI;
             ctx.beginPath();
-            ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
-            ctx.fillStyle = '#0e0e1a';
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, r, start, start + slice);
+            ctx.closePath();
+            ctx.fillStyle = colors[i];
             ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 18px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(total, cx, cy);
-        }})();
+            start += slice;
+        }});
+        ctx.beginPath();
+        ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
+        ctx.fillStyle = '#0e0e1a';
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(total, cx, cy);
         </script>
-    """, unsafe_allow_html=True)
+    """, height=260)
 
     # ── รายการภาพทั้งหมด (กรณีมีมากกว่า 1 ภาพ) ──────────────────────────────
     if len(results) > 1:
