@@ -450,17 +450,17 @@ files in cwd:
 
     # ─── Upload zone ──────────────────────────────────────────────────────────
     uploaded = st.file_uploader(
-        "📂 เลือกไฟล์รูปภาพหรือไฟล์ ZIP",
+        "📂 Choose an image file or a ZIP file",
         type=["jpg", "jpeg", "png", "bmp", "webp", "tiff", "zip"],
         accept_multiple_files=True,
         key=st.session_state.upload_key,
-        help="รองรับ JPG, PNG, BMP, WEBP, TIFF และ .zip ที่มีรูปภาพอยู่ภายใน"
+        help="Supports JPG, PNG, BMP, WEBP, TIFF, and .zip files containing images."
     )
 
     if uploaded:
         col_clear = st.columns([1, 1, 1])
         with col_clear[1]:
-            if st.button("🗑️ เคลียร์รูปทั้งหมด", type="secondary", use_container_width=True):
+            if st.button("Clear Images", type="secondary", use_container_width=True):
                 st.session_state.upload_key += 1
                 st.rerun()
 
