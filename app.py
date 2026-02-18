@@ -21,8 +21,6 @@ html, body, p, h1, h2, h3, h4, h5, h6 {
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
     border-right: 2px solid #e94560;
-}
-[data-testid="stSidebar"] * {
     font-family: 'Prompt', sans-serif !important;
     color: #f0f0f0 !important;
 }
