@@ -51,18 +51,18 @@ def render():
 
         st.markdown(f"""
             <div class="result-card">
-                <div style='font-size:18px; font-weight:700;'>🎯 YOLOv8 (best.pt)</div>
-                <div style='margin-top:10px; font-size:14px; color:#aaa;'>
-                    ใช้ตรวจจับและวาด Bounding Box รอบตัวหมู
+                <div style='font-size:16px; font-weight:600;'>🎯 YOLOv8 (best.pt)</div>
+                <div style='margin-top:8px; font-size:12px; color:#aaa;'>
+                    Used to detect and draw Bounding Box around pigs
                 </div>
-                <div style='margin-top:14px;'>
+                <div style='margin-top:12px;'>
                     <span style='background:{color}22; color:{color};
                                  padding:4px 14px; border-radius:20px;
-                                 font-size:13px; font-weight:600;'>
+                                 font-size:12px; font-weight:500;'>
                         {status}
                     </span>
                     &nbsp;&nbsp;
-                    <span style='color:#777; font-size:13px;'>ขนาด: {size}</span>
+                    <span style='color:#777; font-size:12px;'>size: {size}</span>
                 </div>
                 <div style='margin-top:8px; font-size:12px; color:#555;'>
                     path: best.pt
@@ -79,18 +79,18 @@ def render():
 
         st.markdown(f"""
             <div class="result-card">
-                <div style='font-size:18px; font-weight:700;'>🌲 Random Forest (.pkl)</div>
-                <div style='margin-top:10px; font-size:14px; color:#aaa;'>
-                    รับ features จาก YOLO แล้วทำนายน้ำหนักเป็น กก.
+                <div style='font-size:16px; font-weight:600;'>🌲 Random Forest (.pkl)</div>
+                <div style='margin-top:8px; font-size:12px; color:#aaa;'>
+                    Get features from YOLO and predict weight in kg.
                 </div>
-                <div style='margin-top:14px;'>
+                <div style='margin-top:12px;'>
                     <span style='background:{color2}22; color:{color2};
                                  padding:4px 14px; border-radius:20px;
-                                 font-size:13px; font-weight:600;'>
+                                 font-size:12px; font-weight:500;'>
                         {status2}
                     </span>
                     &nbsp;&nbsp;
-                    <span style='color:#777; font-size:13px;'>ขนาด: {size2}</span>
+                    <span style='color:#777; font-size:12px;'>ขนาด: {size2}</span>
                 </div>
                 <div style='margin-top:8px; font-size:12px; color:#555;'>
                     path: random_forest.pkl
