@@ -179,8 +179,8 @@ streamlit run app.py
         with cols[i % 2]:
             st.markdown(f"""
                 <div style='background:#1a1a2e; border:1px solid #2a2a4a;
-                             border-radius:10px; padding:10px 16px; margin-bottom:8px;
-                             color:white; font-size:12px;'>
+                             border-radius:10px; padding:12px 16px; margin-bottom:8px;
+                             color:white; font-size:14px;'>
                     {icon} &nbsp; {text}
                 </div>
             """, unsafe_allow_html=True)
