@@ -608,7 +608,7 @@ files in cwd:
                 <div style='margin-top:8px; font-size:14px;'>
                     Detected: <b>{primary['bbox_count']}</b> bounding box(es)
                 </div>
-                <div class="weight-badge">🐷 {primary['weight_kg']:.3f} kg</div>
+                <div class="weight-badge">{primary['weight_kg']:.3f} kg</div>
                 <div style='margin-top:10px; padding:8px 14px; border-radius:8px;
                             background:{stage_color}22; border:1px solid {stage_color};
                             color:{stage_color}; font-size:14px; font-weight:600; display:inline-block;'>
