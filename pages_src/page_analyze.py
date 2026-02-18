@@ -434,9 +434,10 @@ def render():
             st.warning("⚠️ random_forest.pkl not found — Use Demo mode.")
 
     # ─── Debug info (ช่วย troubleshoot path บน Streamlit Cloud) ────────────────
-    with st.expander("Debug: Path information (click to view)"):
+    with st.expander("Debug: click to view"):
         import glob
         st.code(f"""
+**Path information**
 cwd          : {os.getcwd()}
 __file__     : {os.path.abspath(__file__)}
 best.pt found: {_find_model('best.pt') or 'NOT FOUND'}
@@ -478,7 +479,7 @@ files in cwd:
 
     if not uploaded:
         st.markdown("""
-            <div style='text-align:center; color:#555; padding:50px 0;
+            <div style='text-align:center; color:#555; padding:40px 0;
                         border:2px dashed #2a2a4a; border-radius:16px; margin-top:24px;'>
                 <div style='font-size:48px;'>🐷</div>
                 <div style='font-size:14px; margin-top:12px;'>
