@@ -113,6 +113,15 @@ def load_scaler():
         return None
     return joblib.load(scaler_path)
 
+
+@st.cache_resource
+def load_selected_features():
+    """โหลดรายชื่อ features ที่ใช้ train (selected_features.pkl)"""
+    sf_path = _find_model("selected_features.pkl")
+    if not JOBLIB_AVAILABLE or not sf_path:
+        return SELECTED_FEATURES  # fallback hardcoded list
+    return joblib.load(sf_path)
+
 # ─── Mask / Contour feature extraction ───────────────────────────────────────
 # Feature order ตรงกับ selected_features ใน notebook:
 # ['mask_area', 'Convex_Hull_Area', 'longest', 'perimeter', 'Hu_1', 'Hu_2', 'Hu_4']
@@ -172,19 +181,51 @@ def _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2):
     return [mask_area, convex_hull_area, longest, perimeter, Hu_1, Hu_2, Hu_4]
 
 
+# ─── Mask cleaning (ตาม notebook clean_pig_mask) ─────────────────────────────
+def clean_pig_mask(mask_float, use_blur=True):
+    """ทำความสะอาด mask ด้วย morphology (ตรงกับ notebook)"""
+    import cv2
+    mask_uint8 = (mask_float * 255).astype(np.uint8)
+    if use_blur:
+        mask_uint8 = cv2.GaussianBlur(mask_uint8, (5, 5), 0)
+        _, mask_uint8 = cv2.threshold(mask_uint8, 127, 255, cv2.THRESH_BINARY)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
+    mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_CLOSE, kernel)
+    mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_OPEN,
+                                   cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
+    # เก็บเฉพาะ component ที่ใหญ่สุด
+    n_labels, labels, stats, _ = cv2.connectedComponentsWithStats(mask_uint8)
+    if n_labels > 1:
+        largest = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])
+        mask_uint8 = np.where(labels == largest, 255, 0).astype(np.uint8)
+    return mask_uint8
+
+
+def mask_to_pil(mask_uint8):
+    """แปลง binary mask เป็น PIL Image (grayscale → RGB เพื่อแสดงผล)"""
+    from PIL import Image as PILImage
+    return PILImage.fromarray(mask_uint8).convert("RGB")
+
+
 # ─── Core analysis function ────────────────────────────────────────────────────
 def analyze_pig_image(pil_image: Image.Image, filename: str,
-                       yolo_model, rf_model, scaler=None) -> dict:
+                       yolo_model, rf_model, scaler=None, selected_features=None) -> dict:
     """
     วิเคราะห์รูปหมู 1 ตัว
     Returns dict: {filename, weight_kg, before_img, after_img, bbox_count}
     """
+    import cv2
     img_array = np.array(pil_image.convert("RGB"))
     after_img = pil_image.copy().convert("RGB")
     draw = ImageDraw.Draw(after_img)
 
     bbox_count = 0
     features_list = []
+    raw_mask_img   = None   # PIL: Raw Mask (Before Cleaning)
+    clean_mask_img = None   # PIL: Clean Mask (After Cleaning)
+    masked_img     = None   # PIL: Masked Image (Black Background)
+
+    h_img, w_img = img_array.shape[:2]
 
     # ── YOLO inference ──────────────────────────────────────────────────────
     if yolo_model is not None:
@@ -207,10 +248,35 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
                               f"Pig {conf:.2f}",
                               fill="white")
 
-                    # ── สกัด mask/contour features (7 features) ──────────────
-                    # features: mask_area, Hu_1, Hu_4, longest, Convex_Hull_Area, perimeter, Hu_2
+                    # ── สกัด raw mask ─────────────────────────────────────────
+                    if masks is not None and idx < len(masks.data):
+                        raw_np = masks.data[idx].cpu().numpy()
+                        raw_resized = cv2.resize(raw_np, (w_img, h_img),
+                                                  interpolation=cv2.INTER_LINEAR)
+                        raw_bin = (raw_resized > 0.5).astype(np.float32)
+                    else:
+                        raw_bin = np.zeros((h_img, w_img), dtype=np.float32)
+                        raw_bin[y1:y2, x1:x2] = 1.0
+
+                    # raw mask image (before cleaning)
+                    raw_uint8 = (raw_bin * 255).astype(np.uint8)
+                    raw_mask_img = mask_to_pil(raw_uint8)
+
+                    # clean mask (after cleaning)
+                    clean_uint8 = clean_pig_mask(raw_bin, use_blur=True)
+                    clean_mask_img = mask_to_pil(clean_uint8)
+
+                    # masked image (black background)
+                    clean_float = (clean_uint8 > 0).astype(np.float32)
+                    mask_3ch = np.stack([clean_float] * 3, axis=-1)
+                    masked_np = (img_array * mask_3ch).astype(np.uint8)
+                    masked_img = Image.fromarray(masked_np)
+
+                    # ── สกัด features จาก clean mask ──────────────────────────
                     feat = _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2)
                     features_list.append(feat)
+
+                    break  # ใช้เฉพาะ pig ตัวแรก (ตาม notebook)
         except Exception as e:
             st.warning(f"YOLO error: {e}")
 
@@ -218,11 +284,16 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
     weight_kg = None
     if rf_model is not None and features_list:
         try:
-            feat = np.array(features_list).mean(axis=0).reshape(1, -1)
-            # ใช้ scaler ก่อน predict (StandardScaler จาก feature_scaler.pkl)
+            # features_dict เก็บค่าแต่ละ feature ตามชื่อ
+            feat_names  = selected_features if selected_features else SELECTED_FEATURES
+            feat_values = np.array(features_list).mean(axis=0)  # shape: (7,)
+            # map ตามลำดับจาก SELECTED_FEATURES → feat_names
+            feat_map = dict(zip(SELECTED_FEATURES, feat_values))
+            ordered  = np.array([feat_map.get(f, 0.0) for f in feat_names]).reshape(1, -1)
+            # scale ก่อน predict
             if scaler is not None:
-                feat = scaler.transform(feat)
-            weight_kg = float(rf_model.predict(feat)[0])
+                ordered = scaler.transform(ordered)
+            weight_kg = float(rf_model.predict(ordered)[0])
         except Exception as e:
             st.warning(f"RF error: {e}")
 
@@ -253,6 +324,9 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
         "weight_kg": weight_kg,
         "before_img": pil_image.convert("RGB"),
         "after_img": after_img,
+        "raw_mask_img": raw_mask_img,
+        "clean_mask_img": clean_mask_img,
+        "masked_img": masked_img,
         "bbox_count": bbox_count,
     }
 
@@ -329,9 +403,10 @@ def render():
     """, unsafe_allow_html=True)
 
     # โหลดโมเดล
-    yolo_model = load_yolo()
-    rf_model   = load_rf()
-    scaler     = load_scaler()
+    yolo_model        = load_yolo()
+    rf_model          = load_rf()
+    scaler            = load_scaler()
+    selected_features = load_selected_features()
 
     # สถานะโมเดล
     col_m1, col_m2 = st.columns(2)
@@ -359,6 +434,7 @@ JOBLIB_AVAILABLE : {JOBLIB_AVAILABLE}
 yolo_model loaded: {yolo_model is not None}
 rf_model loaded  : {rf_model is not None}
 scaler loaded    : {scaler is not None}
+selected_features: {selected_features}
 
 files in cwd:
 {chr(10).join(sorted(os.listdir(os.getcwd())))}
@@ -405,7 +481,7 @@ files in cwd:
     progress = st.progress(0, text="กำลังประมวลผล...")
 
     for i, (fname, img) in enumerate(images):
-        result = analyze_pig_image(img, fname, yolo_model, rf_model, scaler)
+        result = analyze_pig_image(img, fname, yolo_model, rf_model, scaler, selected_features)
         results.append(result)
         progress.progress((i + 1) / len(images),
                           text=f"ประมวลผล {i+1}/{len(images)}: {fname}")
@@ -450,21 +526,42 @@ files in cwd:
     st.markdown("### 🖼️ ตัวอย่างผลการวิเคราะห์")
     primary = results[0]
 
-    col_b, col_a = st.columns(2, gap="large")
-    with col_b:
-        st.markdown("**ก่อนวิเคราะห์**")
+    # ── Row 1: Original + Raw Mask ─────────────────────────────────────────
+    col1, col2 = st.columns(2, gap="large")
+    with col1:
+        st.markdown("**📷 Original Image**")
         st.image(primary["before_img"], use_container_width=True)
-    with col_a:
-        st.markdown("**หลังวิเคราะห์ (Layout)**")
-        st.image(primary["after_img"], use_container_width=True)
+    with col2:
+        st.markdown("**🎭 Raw Mask (Before Cleaning)**")
+        if primary["raw_mask_img"] is not None:
+            st.image(primary["raw_mask_img"], use_container_width=True)
+        else:
+            st.image(primary["after_img"], use_container_width=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Row 2: Clean Mask + Masked Image ──────────────────────────────────
+    col3, col4 = st.columns(2, gap="large")
+    with col3:
+        st.markdown("**✨ Clean Mask (After Cleaning)**")
+        if primary["clean_mask_img"] is not None:
+            st.image(primary["clean_mask_img"], use_container_width=True)
+        else:
+            st.info("ไม่มี mask (โหมด Demo)")
+    with col4:
+        st.markdown("**🐷 Masked Image (Black Background)**")
+        if primary["masked_img"] is not None:
+            st.image(primary["masked_img"], use_container_width=True)
+        else:
+            st.info("ไม่มี mask (โหมด Demo)")
 
     st.markdown(f"""
         <div class="result-card">
             <div style='font-size:15px; color:#aaa;'>📁 {primary['filename']}</div>
             <div style='margin-top:8px; font-size:14px;'>
-                ตรวจพบ bbox: <b>{primary['bbox_count']}</b> ตำแหน่ง
+                ตรวจพบ: <b>{primary['bbox_count']}</b> ตำแหน่ง
             </div>
-            <div class="weight-badge">🐷 {primary['weight_kg']} กก.</div>
+            <div class="weight-badge">🐷 {primary['weight_kg']:.2f} กก.</div>
         </div>
     """, unsafe_allow_html=True)
 
