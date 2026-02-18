@@ -55,15 +55,6 @@ html, body, p, h1, h2, h3, h4, h5, h6 {
     color: #ffffff !important;
     box-shadow: 0 4px 15px rgba(233,69,96,0.4);
 }
-
-[data-testid="stSidebar"] button,
-[data-testid="stSidebar"] button p,
-[data-testid="stSidebar"] button div,
-[data-testid="stSidebar"] label,
-[data-testid="stSidebar"] span {
-    font-family: 'Prompt', sans-serif !important;
-}
-
             
 /* Page header */
 .page-header {
