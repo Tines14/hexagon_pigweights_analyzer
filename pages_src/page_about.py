@@ -1,4 +1,4 @@
-"""หน้าที่ 2 - เกี่ยวกับระบบ"""
+"""Page 2 - เกี่ยวกับระบบ"""
 
 import os
 import streamlit as st
@@ -38,7 +38,7 @@ def render():
     """, unsafe_allow_html=True)
 
     # ─── สถานะโมเดล ──────────────────────────────────────────────────────────
-    st.markdown("### 🤖 สถานะโมเดล AI")
+    st.markdown("### 🤖 Model status")
 
     col1, col2 = st.columns(2)
 
@@ -47,7 +47,7 @@ def render():
         exists  = pt_path is not None
         size    = f"{os.path.getsize(pt_path)/1e6:.1f} MB" if exists else "—"
         status  = "🟢 Ready" if exists else "🔴 File not found"
-        color   = "#2ecc71" if exists else "#e94560"
+        color   = "#34dc0e" if exists else "#e2200b"
 
         st.markdown(f"""
             <div class="result-card">
@@ -75,7 +75,7 @@ def render():
         exists2  = skp_path is not None
         size2    = f"{os.path.getsize(skp_path)/1e6:.1f} MB" if exists2 else "—"
         status2  = "🟢 Ready" if exists2 else "🔴 File not found"
-        color2   = "#2ecc71" if exists2 else "#e94560"
+        color2   = "#34dc0e" if exists2 else "#e2200b"
 
         st.markdown(f"""
             <div class="result-card">
@@ -136,12 +136,12 @@ def render():
     st.markdown("---")
     st.markdown("### 🛠️ Installing and running the app.")
 
-    st.markdown("**วางไฟล์โมเดลในโฟลเดอร์เดียวกับ `app.py`:**")
+    st.markdown("**Place the model files in the same folder as `app.py`:**")
     st.code("""
 pig_weight_app/
 ├── app.py
-├── best.pt               ← โมเดล YOLOv8
-├── random_forest.pkl     ← โมเดล RandomForest
+├── best.pt               ← YOLOv8 model file
+├── random_forest.pkl     ← RandomForest model file
 ├── requirements.txt
 └── pages_src/
     ├── __init__.py
@@ -149,7 +149,7 @@ pig_weight_app/
     └── page_about.py
     """, language="text")
 
-    st.markdown("**ติดตั้ง dependencies:**")
+    st.markdown("**Install dependencies:**")
     st.code("""
 pip install -r requirements.txt
     """, language="bash")
@@ -164,14 +164,14 @@ streamlit run app.py
     st.markdown("### ✨ All features at a glance")
 
     features = [
-        ("📁", "อัปโหลดหลายรูปพร้อมกันหรือ ZIP"),
-        ("🎯", "YOLO ตรวจจับ bounding box อัตโนมัติ"),
-        ("🌲", "RandomForest ทำนายน้ำหนัก (กก.)"),
-        ("🖼️", "แสดงภาพก่อน/หลังพร้อม layout"),
-        ("📋", "รายการผลลัพธ์เรียงตามน้ำหนัก"),
-        ("📥", "ดาวน์โหลดผลเป็น Excel (.xlsx)"),
-        ("📊", "สรุป avg/max/min น้ำหนัก"),
-        ("🔄", "Demo mode เมื่อยังไม่มีโมเดล"),
+        ("📁", "Upload multiple images at once or ZIP"),        
+        ("🎯", "YOLO automatically detects bounding boxes"),
+        ("🌲", "RandomForest predicts weight (kg)"),
+        ("🖼️", "Show before/after images with layout"),
+        ("📋", "Results list sorted by weight"),
+        ("📥", "Download results as Excel (.xlsx)"),
+        ("📊", "Summary of avg/max/min weight"),
+        ("🔄", "Demo mode when no model is generated"),
     ]
 
     cols = st.columns(2)
