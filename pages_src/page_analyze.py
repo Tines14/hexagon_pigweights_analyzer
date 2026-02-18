@@ -398,7 +398,7 @@ def render():
     st.markdown("""
         <div class="page-header">
             <h1>📷 วิเคราะห์น้ำหนักหมู</h1>
-            <p>อัปโหลดภาพหมู — รองรับรูปเดี่ยว, หลายรูป, หรือไฟล์ .zip</p>
+            <p>Upload group photos — supports single photos, multiple photos, or .zip files.</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -412,17 +412,17 @@ def render():
     col_m1, col_m2 = st.columns(2)
     with col_m1:
         if yolo_model:
-            st.success("✅ โหลด best.pt สำเร็จ")
+            st.success("✅ Best.pt file loaded successfully.")
         else:
-            st.warning("⚠️ ไม่พบ best.pt — ใช้โหมด Demo")
+            st.warning("⚠️ Best.pt not found — Use Demo mode.")
     with col_m2:
         if rf_model:
-            st.success("✅ โหลด random_forest.pkl สำเร็จ")
+            st.success("✅ random_forest.pkl loaded successfully.")
         else:
-            st.warning("⚠️ ไม่พบ random_forest.pkl — ใช้โหมด Demo")
+            st.warning("⚠️ random_forest.pkl not found — Use Demo mode.")
 
     # ─── Debug info (ช่วย troubleshoot path บน Streamlit Cloud) ────────────────
-    with st.expander("🔍 Debug: ข้อมูล Path (กดเพื่อดู)"):
+    with st.expander("Debug: Path information (click to view)"):
         import glob
         st.code(f"""
 cwd          : {os.getcwd()}
@@ -469,36 +469,36 @@ files in cwd:
             <div style='text-align:center; color:#555; padding:60px 0;
                         border:2px dashed #2a2a4a; border-radius:16px; margin-top:24px;'>
                 <div style='font-size:48px;'>🐷</div>
-                <div style='font-size:16px; margin-top:12px;'>
-                    ยังไม่มีไฟล์ — ลากไฟล์มาวางหรือกดปุ่มด้านบน
+                <div style='font-size:14px; margin-top:12px;'>
+                    There's no file yet — drag and drop the file or click the button above.
                 </div>
             </div>
         """, unsafe_allow_html=True)
         return
 
     # ─── โหลดรูป ──────────────────────────────────────────────────────────────
-    with st.spinner("⏳ กำลังโหลดรูปภาพ..."):
+    with st.spinner("⏳ Loading images..."):
         images = load_images_from_uploads(uploaded)
 
     if not images:
-        st.error("❌ ไม่พบรูปภาพในไฟล์ที่อัปโหลด กรุณาตรวจสอบรูปแบบไฟล์")
+        st.error("❌ No images found in uploaded files — please check file formats.")
         return
 
-    st.info(f"📦 พบรูปทั้งหมด **{len(images)}** ภาพ — กำลังวิเคราะห์...")
+    st.info(f"📦 Found **{len(images)}** images — analyzing...")
 
     # ─── Analyze ──────────────────────────────────────────────────────────────
     results = []
-    progress = st.progress(0, text="กำลังประมวลผล...")
+    progress = st.progress(0, text="Processing images...")
 
     for i, (fname, img) in enumerate(images):
         result = analyze_pig_image(img, fname, yolo_model, rf_model, scaler, selected_features)
         results.append(result)
         progress.progress((i + 1) / len(images),
-                          text=f"ประมวลผล {i+1}/{len(images)}: {fname}")
+                          text=f"Processing {i+1}/{len(images)}: {fname}")
         time.sleep(0.05)
 
     progress.empty()
-    st.success(f"✅ วิเคราะห์เสร็จสิ้น {len(results)} ภาพ")
+    st.success(f"✅ Analysis completed for {len(results)} images")
     st.markdown("<hr style='border-color:#2a2a4a;'>", unsafe_allow_html=True)
 
     # ═════════════════════════════════════════════════════════════════════════
@@ -515,34 +515,34 @@ files in cwd:
         <div class="metric-row">
             <div class="metric-card">
                 <div class="val">{len(results)}</div>
-                <div class="lbl">ภาพทั้งหมด</div>
+                <div class="lbl">Total Images</div>
             </div>
             <div class="metric-card">
                 <div class="val">{avg_w:.3f} kg</div>
-                <div class="lbl">น้ำหนักเฉลี่ย</div>
+                <div class="lbl">Average Weight</div>
             </div>
             <div class="metric-card">
                 <div class="val">{max_w:.3f} kg</div>
-                <div class="lbl">น้ำหนักสูงสุด</div>
+                <div class="lbl">Maximum Weight</div>
             </div>
             <div class="metric-card">
                 <div class="val">{min_w:.3f} kg</div>
-                <div class="lbl">น้ำหนักต่ำสุด</div>
+                <div class="lbl">Minimum Weight</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
     # ── แสดงภาพตัวอย่าง (ภาพแรก) ─────────────────────────────────────────────
-    st.markdown("### 🖼️ ตัวอย่างผลการวิเคราะห์")
+    st.markdown("###Example of analysis results.")
     primary = results[0]
 
     # ── Row 1: Original + Raw Mask ─────────────────────────────────────────
     col1, col2 = st.columns(2, gap="large")
     with col1:
-        st.markdown("**📷 Original Image**")
+        st.markdown("**Original Image**")
         st.image(primary["before_img"], use_container_width=True)
     with col2:
-        st.markdown("**🎭 Raw Mask (Before Cleaning)**")
+        st.markdown("**Raw Mask (Before Cleaning)**")
         if primary["raw_mask_img"] is not None:
             st.image(primary["raw_mask_img"], use_container_width=True)
         else:
@@ -553,23 +553,23 @@ files in cwd:
     # ── Row 2: Clean Mask + Masked Image ──────────────────────────────────
     col3, col4 = st.columns(2, gap="large")
     with col3:
-        st.markdown("**✨ Clean Mask (After Cleaning)**")
+        st.markdown("**Clean Mask (After Cleaning)**")
         if primary["clean_mask_img"] is not None:
             st.image(primary["clean_mask_img"], use_container_width=True)
         else:
-            st.info("ไม่มี mask (โหมด Demo)")
+            st.info("No mask available (Demo mode)")
     with col4:
-        st.markdown("**🐷 Masked Image (Black Background)**")
+        st.markdown("**Masked Image (Black Background)**")
         if primary["masked_img"] is not None:
             st.image(primary["masked_img"], use_container_width=True)
         else:
-            st.info("ไม่มี mask (โหมด Demo)")
+            st.info("No mask available (Demo mode)")
 
     st.markdown(f"""
         <div class="result-card">
             <div style='font-size:15px; color:#aaa;'>📁 {primary['filename']}</div>
             <div style='margin-top:8px; font-size:14px;'>
-                ตรวจพบ: <b>{primary['bbox_count']}</b> ตำแหน่ง
+                Detected: <b>{primary['bbox_count']}</b> bounding box(es)
             </div>
             <div class="weight-badge">🐷 {primary['weight_kg']:.3f} kg</div>
         </div>
@@ -578,7 +578,7 @@ files in cwd:
     # ── รายการภาพทั้งหมด (กรณีมีมากกว่า 1 ภาพ) ──────────────────────────────
     if len(results) > 1:
         st.markdown("---")
-        st.markdown("### 📋 ผลการวิเคราะห์ทั้งหมด")
+        st.markdown("###All analysis results")
 
         # เรียงตามน้ำหนักมาก → น้อย
         sorted_results = sorted(results, key=lambda x: x["weight_kg"],
@@ -602,12 +602,12 @@ files in cwd:
 
     # ─── ดาวน์โหลด Excel ──────────────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("### 📥 ดาวน์โหลดผลลัพธ์")
+    st.markdown("###⬇️ Download Results")
 
     if EXCEL_AVAILABLE:
         excel_bytes = build_excel(results)
         st.download_button(
-            label="⬇️  Download the Excel file (.xlsx).",
+            label="⬇️ Download the Excel file (.xlsx).",
             data=excel_bytes,
             file_name="pig_weight_results.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -618,7 +618,7 @@ files in cwd:
 
     # ปุ่มดาวน์โหลดภาพ after ของภาพแรก
     st.download_button(
-        label="🖼️  ดาวน์โหลดภาพตัวอย่าง (หลังวิเคราะห์)",
+        label="🖼️ Download sample image (after analysis)",
         data=pil_to_bytes(primary["after_img"]),
         file_name=f"analyzed_{primary['filename']}",
         mime="image/png",
