@@ -22,15 +22,9 @@ html, body, p, h1, h2, h3, h4, h5, h6 {
     background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
     border-right: 2px solid #e94560;
 }
-
 [data-testid="stSidebar"] * {
-    color: #f0f0f0 !important;
-}
-            
-[data-testid="stSidebar"] button p,
-[data-testid="stSidebar"] label,
-[data-testid="stSidebar"] p {
     font-family: 'Prompt', sans-serif !important;
+    color: #f0f0f0 !important;
 }
 
 /* Sidebar nav button */
@@ -148,15 +142,15 @@ if "page" not in st.session_state:
 with st.sidebar:
     st.markdown("""
         <div style='text-align:center; padding: 20px 0 28px;'>
-            <div style='font-size:52px;'>🐷</div>
-            <div style='font-size:18px; font-weight:700; color:white; margin-top:8px;'>Pig Weight AI</div>
-            <div style='font-size:12px; color:#888; margin-top:4px;'>ระบบวิเคราะห์น้ำหนักหมู</div>
+            <div style='font-size:60px;'>🐷</div>
+            <div style='font-size:20px; font-weight:700; color:white; margin-top:8px;'>Pig weight analysis system</div>
+            <div style='font-size:16px; color:#aaa; margin-top:4px;'>v1.0.0</div>
         </div>
     """, unsafe_allow_html=True)
 
     pages = [
-        ("📷", "วิเคราะห์น้ำหนัก", "analyze"),
-        ("📊", "เกี่ยวกับระบบ",    "about"),
+        ("📷", "Analyze Pig Weight", "analyze"),
+        ("📊", "About System",    "about"),
     ]
 
     for icon, label, key in pages:
