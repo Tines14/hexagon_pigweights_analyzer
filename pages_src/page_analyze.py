@@ -508,15 +508,15 @@ files in cwd:
                 <div class="lbl">ภาพทั้งหมด</div>
             </div>
             <div class="metric-card">
-                <div class="val">{avg_w:.3f} กก.</div>
+                <div class="val">{avg_w:.3f} kg</div>
                 <div class="lbl">น้ำหนักเฉลี่ย</div>
             </div>
             <div class="metric-card">
-                <div class="val">{max_w:.5f} กก.</div>
+                <div class="val">{max_w:.3f} kg</div>
                 <div class="lbl">น้ำหนักสูงสุด</div>
             </div>
             <div class="metric-card">
-                <div class="val">{min_w:.5f} กก.</div>
+                <div class="val">{min_w:.3f} kg</div>
                 <div class="lbl">น้ำหนักต่ำสุด</div>
             </div>
         </div>
@@ -561,7 +561,7 @@ files in cwd:
             <div style='margin-top:8px; font-size:14px;'>
                 ตรวจพบ: <b>{primary['bbox_count']}</b> ตำแหน่ง
             </div>
-            <div class="weight-badge">🐷 {primary['weight_kg']:.3f} กก.</div>
+            <div class="weight-badge">🐷 {primary['weight_kg']:.3f} kg</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -586,7 +586,7 @@ files in cwd:
                             ({r['bbox_count']} bbox)
                         </span>
                     </div>
-                    <div class="pig-wt">{r['weight_kg']:.5f} กก.</div>
+                    <div class="pig-wt">{r['weight_kg']:.3f} kg.</div>
                 </div>
             """, unsafe_allow_html=True)
 
