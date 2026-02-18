@@ -523,23 +523,6 @@ files in cwd:
     max_w   = max(weights)
     min_w   = min(weights)
 
-    st.markdown(f"""
-        <div class="result-card">
-            <div style='font-size:15px; color:#aaa;'>📁 {primary['filename']}</div>
-            <div style='margin-top:4px; font-size:12px; color:#666;'>
-                🕐 Analyzed at: {primary['timestamp']}
-            </div>
-            <div style='margin-top:8px; font-size:14px;'>
-                Detected: <b>{primary['bbox_count']}</b> bounding box(es)
-            </div>
-            <div class="weight-badge">🐷 {primary['weight_kg']:.3f} kg</div>
-            <div style='margin-top:10px; padding:8px 14px; border-radius:8px;
-                        background:{stage_color}22; border:1px solid {stage_color};
-                        color:{stage_color}; font-size:14px; font-weight:600; display:inline-block;'>
-                {stage_icon} {stage_label}
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
 
     # ── แสดงภาพตัวอย่าง (ภาพแรก) ─────────────────────────────────────────────
     st.markdown("Example of analysis results.")
@@ -578,10 +561,18 @@ files in cwd:
     st.markdown(f"""
         <div class="result-card">
             <div style='font-size:15px; color:#aaa;'>📁 {primary['filename']}</div>
+            <div style='margin-top:4px; font-size:12px; color:#666;'>
+                🕐 Analyzed at: {primary['timestamp']}
+            </div>
             <div style='margin-top:8px; font-size:14px;'>
                 Detected: <b>{primary['bbox_count']}</b> bounding box(es)
             </div>
             <div class="weight-badge">🐷 {primary['weight_kg']:.3f} kg</div>
+            <div style='margin-top:10px; padding:8px 14px; border-radius:8px;
+                        background:{stage_color}22; border:1px solid {stage_color};
+                        color:{stage_color}; font-size:14px; font-weight:600; display:inline-block;'>
+                {stage_icon} {stage_label}
+            </div>
         </div>
     """, unsafe_allow_html=True)
 
