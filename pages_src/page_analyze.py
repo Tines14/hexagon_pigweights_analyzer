@@ -599,7 +599,7 @@ files in cwd:
     stage_label, stage_color = get_pig_stage(primary['weight_kg'])
 
     st.markdown(f"""
-        <div class="result-card" style="display:flex; align-items:center; gap:24px;">
+        <div class="result-card" style="display:flex; align-items:center; gap:20px;">
             <div style="flex:1;">
                 <div style='font-size:14px; color:#aaa;'>📁 {primary['filename']}</div>
                 <div style='margin-top:6px; font-size:12px; color:#666;'>
@@ -620,7 +620,7 @@ files in cwd:
 
     components.html(f"""
         <div style="text-align:center; font-family:sans-serif;">
-            <div style="font-size:13px; color:#aaa; margin-bottom:8px;">Pig Stage Summary</div>
+            <div style="font-size:13px; color:#aaa; margin-bottom:10px;">Pig Stage Summary</div>
             <canvas id="stageChart" width="200" height="200"></canvas>
             <div style="margin-top:8px; font-size:14px; color:#aaa; line-height:2;">
                 <span style="color:#888888;">●</span> Pre-Piglet: {stage_counts['Pre-Piglet']}&nbsp;&nbsp;
