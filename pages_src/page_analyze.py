@@ -508,15 +508,15 @@ files in cwd:
                 <div class="lbl">ภาพทั้งหมด</div>
             </div>
             <div class="metric-card">
-                <div class="val">{avg_w} กก.</div>
+                <div class="val">{avg_w:.3f} กก.</div>
                 <div class="lbl">น้ำหนักเฉลี่ย</div>
             </div>
             <div class="metric-card">
-                <div class="val">{max_w} กก.</div>
+                <div class="val">{max_w:.5f} กก.</div>
                 <div class="lbl">น้ำหนักสูงสุด</div>
             </div>
             <div class="metric-card">
-                <div class="val">{min_w} กก.</div>
+                <div class="val">{min_w:.5f} กก.</div>
                 <div class="lbl">น้ำหนักต่ำสุด</div>
             </div>
         </div>
