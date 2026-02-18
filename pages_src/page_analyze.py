@@ -557,6 +557,7 @@ files in cwd:
     # ── แสดงภาพตัวอย่าง (ภาพแรก) ─────────────────────────────────────────────
     st.markdown("Example of analysis results.")
     primary = results[0]
+    stage_icon, stage_label, stage_color = get_pig_stage(primary['weight_kg']) 
 
     # ── Row 1: Original + Raw Mask ─────────────────────────────────────────
     col1, col2 = st.columns(2, gap="large")
