@@ -458,7 +458,7 @@ files in cwd:
     )
 
     if uploaded:
-        if st.button("🗑️ Clear Images", type="secondary"):
+        if st.button("Clear Images", type="secondary", use_container_width=True):
             st.session_state.upload_key += 1
             st.rerun()
 
