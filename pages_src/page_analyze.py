@@ -535,13 +535,12 @@ files in cwd:
                 <div class="lbl">Average Weight</div>
             </div>
             <div class="metric-card">
-                <div class="val">{max_w:.3f} kg</div>
-                <div class="lbl">Maximum Weight</div>
-            </div>
-            <div class="metric-card">
                 <div class="val">{min_w:.3f} kg</div>
                 <div class="lbl">Minimum Weight</div>
             </div>
+            <div class="metric-card">
+                <div class="val">{max_w:.3f} kg</div>
+                <div class="lbl">Maximum Weight</div>
         </div>
     """, unsafe_allow_html=True)
 
