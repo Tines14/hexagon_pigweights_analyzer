@@ -338,16 +338,16 @@ def build_excel(results: list[dict]) -> bytes:
     rows = []
     for i, r in enumerate(results, 1):
         rows.append({
-            "ลำดับ": i,
-            "ชื่อไฟล์": r["filename"],
-            "น้ำหนักโดยประมาณ (กก.)": r["weight_kg"],
-            "จำนวน bbox ที่ตรวจพบ": r["bbox_count"],
+            "Order": i,
+            "File name": r["filename"],
+            "Estimated weight (kg)": r["weight_kg"],
+            "Number of detected bounding boxes": r["bbox_count"],
         })
     df = pd.DataFrame(rows)
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
-        df.to_excel(writer, index=False, sheet_name="ผลการวิเคราะห์")
-        ws = writer.sheets["ผลการวิเคราะห์"]
+        df.to_excel(writer, index=False, sheet_name="Analysis results")
+        ws = writer.sheets["Analysis results"]
         # ปรับความกว้างคอลัมน์
         for col in ws.columns:
             max_len = max(len(str(cell.value or "")) for cell in col)
@@ -484,7 +484,7 @@ files in cwd:
         st.error("❌ No images found in uploaded files — please check file formats.")
         return
 
-    st.info(f"📦 Found **{len(images)}** images — analyzing...")
+    st.info(f"Found **{len(images)}** images — analyzing...")
 
     # ─── Analyze ──────────────────────────────────────────────────────────────
     results = []
@@ -498,7 +498,7 @@ files in cwd:
         time.sleep(0.05)
 
     progress.empty()
-    st.success(f"✅ Analysis completed for {len(results)} images")
+    st.success(f"Analysis completed for {len(results)} images")
     st.markdown("<hr style='border-color:#2a2a4a;'>", unsafe_allow_html=True)
 
     # ═════════════════════════════════════════════════════════════════════════
@@ -602,7 +602,7 @@ files in cwd:
 
     # ─── ดาวน์โหลด Excel ──────────────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("###⬇️ Download Results")
+    st.markdown("⬇️ Download Results")
 
     if EXCEL_AVAILABLE:
         excel_bytes = build_excel(results)
@@ -618,7 +618,7 @@ files in cwd:
 
     # ปุ่มดาวน์โหลดภาพ after ของภาพแรก
     st.download_button(
-        label="🖼️ Download sample image (after analysis)",
+        label="⬇️ Download sample image (after analysis)",
         data=pil_to_bytes(primary["after_img"]),
         file_name=f"analyzed_{primary['filename']}",
         mime="image/png",
