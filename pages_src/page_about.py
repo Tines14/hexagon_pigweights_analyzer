@@ -90,7 +90,7 @@ def render():
                         {status2}
                     </span>
                     &nbsp;&nbsp;
-                    <span style='color:#777; font-size:12px;'>ขนาด: {size2}</span>
+                    <span style='color:#777; font-size:12px;'>size: {size2}</span>
                 </div>
                 <div style='margin-top:8px; font-size:12px; color:#555;'>
                     path: random_forest.pkl
@@ -179,8 +179,8 @@ streamlit run app.py
         with cols[i % 2]:
             st.markdown(f"""
                 <div style='background:#1a1a2e; border:1px solid #2a2a4a;
-                             border-radius:10px; padding:12px 16px; margin-bottom:8px;
-                             color:white; font-size:14px;'>
+                             border-radius:10px; padding:10px 16px; margin-bottom:8px;
+                             color:white; font-size:12px;'>
                     {icon} &nbsp; {text}
                 </div>
             """, unsafe_allow_html=True)
