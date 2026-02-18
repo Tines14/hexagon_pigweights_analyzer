@@ -23,6 +23,7 @@ html, body, p, h1, h2, h3, h4, h5, h6 {
     border-right: 2px solid #e94560;
 }
 [data-testid="stSidebar"] * {
+    font-family: 'Prompt', sans-serif !important;
     color: #f0f0f0 !important;
 }
 
