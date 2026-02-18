@@ -546,7 +546,7 @@ files in cwd:
 
 
     # ── แสดงภาพตัวอย่าง (ภาพแรก) ─────────────────────────────────────────────
-    st.markdown("Example of analysis results.")
+    st.markdown("**Example of analysis results.**")
     primary = results[0]
     stage_label, stage_color = get_pig_stage(primary['weight_kg']) 
 
