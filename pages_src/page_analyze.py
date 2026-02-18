@@ -1,5 +1,5 @@
 """
-หน้าที่ 1 - วิเคราะห์น้ำหนักหมู
+Page 1 - วิเคราะห์น้ำหนักหมู
 รองรับ: รูปเดียว / หลายรูป / ไฟล์ ZIP
 โมเดล: best.pt (YOLOv8) + random_forest.pkl (RandomForest)
 """
@@ -45,7 +45,7 @@ except ImportError:
 # ─── Model loading (cached) ────────────────────────────────────────────────────
 # หา root directory ของโปรเจกต์ (ที่เดียวกับ app.py)
 def _build_search_paths(filename):
-    """สร้างรายการ path ที่เป็นไปได้ทั้งหมด รวมถึง Streamlit Cloud"""
+    """Create a list of all possible paths, including Streamlit Cloud."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cwd = os.getcwd()
 
@@ -108,7 +108,7 @@ def load_rf():
 
 @st.cache_resource
 def load_scaler():
-    """โหลด StandardScaler ที่ใช้ตอน train"""
+    """Load the StandardScaler used during training"""
     scaler_path = _find_model("feature_scaler.pkl")
     if not JOBLIB_AVAILABLE or not scaler_path:
         return None
@@ -117,7 +117,7 @@ def load_scaler():
 
 @st.cache_resource
 def load_selected_features():
-    """โหลดรายชื่อ features ที่ใช้ train (selected_features.pkl)"""
+    """Load the list of features used for training. (selected_features.pkl)"""
     sf_path = _find_model("selected_features.pkl")
     if not JOBLIB_AVAILABLE or not sf_path:
         return SELECTED_FEATURES  # fallback hardcoded list
@@ -135,7 +135,7 @@ def _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2):
     ['mask_area', 'Convex_Hull_Area', 'longest', 'perimeter', 'Hu_1', 'Hu_2', 'Hu_4']
 
     Hu moments = ค่าดิบจาก cv2.HuMoments (ไม่ใช้ log transform)
-    longest     = max(w, h) ของ minAreaRect (ตรง notebook)
+    longest = max(w, h) ของ minAreaRect (ตรง notebook)
     """
     import cv2
     h_img, w_img = img_array.shape[:2]
@@ -184,7 +184,7 @@ def _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2):
 
 # ─── Mask cleaning (ตาม notebook clean_pig_mask) ─────────────────────────────
 def clean_pig_mask(mask_float, use_blur=True):
-    """ทำความสะอาด mask ด้วย morphology (ตรงกับ notebook)"""
+    """Clean the mask using morphology (matching the notebook)."""
     import cv2
     mask_uint8 = (mask_float * 255).astype(np.uint8)
     if use_blur:
@@ -203,7 +203,7 @@ def clean_pig_mask(mask_float, use_blur=True):
 
 
 def mask_to_pil(mask_uint8):
-    """แปลง binary mask เป็น PIL Image (grayscale → RGB เพื่อแสดงผล)"""
+    """Convert the binary mask to a PIL image (grayscale → RGB for display)."""
     from PIL import Image as PILImage
     return PILImage.fromarray(mask_uint8).convert("RGB")
 
@@ -477,26 +477,16 @@ files in cwd:
                 st.rerun()
 
     if not uploaded:
-        
-        stage_icon, stage_label, stage_color = get_pig_stage(primary['weight_kg'])
-
-        st.markdown(f"""
-            <div class="result-card">
-                <div style='font-size:15px; color:#aaa;'>📁 {primary['filename']}</div>
-                <div style='margin-top:4px; font-size:12px; color:#666;'>
-                    🕐 Analyzed at: {primary['timestamp']}
-                </div>
-                <div style='margin-top:8px; font-size:14px;'>
-                    Detected: <b>{primary['bbox_count']}</b> bounding box(es)
-                </div>
-                <div class="weight-badge">🐷 {primary['weight_kg']:.3f} kg</div>
-                <div style='margin-top:10px; padding:8px 14px; border-radius:8px;
-                            background:{stage_color}22; border:1px solid {stage_color};
-                            color:{stage_color}; font-size:14px; font-weight:600; display:inline-block;'>
-                    {stage_icon} {stage_label}
+        st.markdown("""
+            <div style='text-align:center; color:#555; padding:60px 0;
+                        border:2px dashed #2a2a4a; border-radius:16px; margin-top:24px;'>
+                <div style='font-size:48px;'>🐷</div>
+                <div style='font-size:14px; margin-top:12px;'>
+                    There's no file yet — drag and drop the file or click the button above.
                 </div>
             </div>
         """, unsafe_allow_html=True)
+        return
 
     # ─── โหลดรูป ──────────────────────────────────────────────────────────────
     with st.spinner("⏳ Loading images..."):
@@ -534,22 +524,19 @@ files in cwd:
     min_w   = min(weights)
 
     st.markdown(f"""
-        <div class="metric-row">
-            <div class="metric-card">
-                <div class="val">{len(results)}</div>
-                <div class="lbl">Total Images</div>
+        <div class="result-card">
+            <div style='font-size:15px; color:#aaa;'>📁 {primary['filename']}</div>
+            <div style='margin-top:4px; font-size:12px; color:#666;'>
+                🕐 Analyzed at: {primary['timestamp']}
             </div>
-            <div class="metric-card">
-                <div class="val">{avg_w:.3f} kg</div>
-                <div class="lbl">Average Weight</div>
+            <div style='margin-top:8px; font-size:14px;'>
+                Detected: <b>{primary['bbox_count']}</b> bounding box(es)
             </div>
-            <div class="metric-card">
-                <div class="val">{max_w:.3f} kg</div>
-                <div class="lbl">Maximum Weight</div>
-            </div>
-            <div class="metric-card">
-                <div class="val">{min_w:.3f} kg</div>
-                <div class="lbl">Minimum Weight</div>
+            <div class="weight-badge">🐷 {primary['weight_kg']:.3f} kg</div>
+            <div style='margin-top:10px; padding:8px 14px; border-radius:8px;
+                        background:{stage_color}22; border:1px solid {stage_color};
+                        color:{stage_color}; font-size:14px; font-weight:600; display:inline-block;'>
+                {stage_icon} {stage_label}
             </div>
         </div>
     """, unsafe_allow_html=True)
