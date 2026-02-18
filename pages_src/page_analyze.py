@@ -398,7 +398,7 @@ def get_pig_stage(weight_kg):
     elif weight_kg < 35:
         return "Piglet stage (20–35 kg)", "#f39c12"
     elif weight_kg < 60:
-        return "Growing pig stage (35–60 kg)", "#27ae60"
+        return "Growing stage (35–60 kg)", "#27ae60"
     else:
         return "Market stage (60 kg+)", "#e94560"
 
@@ -519,9 +519,30 @@ files in cwd:
 
     # ── Summary metrics ──────────────────────────────────────────────────────
     weights = [r["weight_kg"] for r in results]
-    avg_w   = round(sum(weights) / len(weights), 1)
-    max_w   = max(weights)
-    min_w   = min(weights)
+    avg_w   = round(sum(weights) / len(weights))
+    max_w   = round(max(weights))
+    min_w   = round(min(weights))
+
+    st.markdown(f"""
+        <div class="metric-row">
+            <div class="metric-card">
+                <div class="val">{len(results)}</div>
+                <div class="lbl">Total Images</div>
+            </div>
+            <div class="metric-card">
+                <div class="val">{avg_w:.3f} kg</div>
+                <div class="lbl">Average Weight</div>
+            </div>
+            <div class="metric-card">
+                <div class="val">{max_w:.3f} kg</div>
+                <div class="lbl">Maximum Weight</div>
+            </div>
+            <div class="metric-card">
+                <div class="val">{min_w:.3f} kg</div>
+                <div class="lbl">Minimum Weight</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
 
     # ── แสดงภาพตัวอย่าง (ภาพแรก) ─────────────────────────────────────────────
@@ -561,7 +582,7 @@ files in cwd:
     st.markdown(f"""
         <div class="result-card">
             <div style='font-size:15px; color:#aaa;'>📁 {primary['filename']}</div>
-            <div style='margin-top:4px; font-size:12px; color:#666;'>
+            <div style='margin-top:6px; font-size:12px; color:#666;'>
                 🕐 Analyzed at: {primary['timestamp']}
             </div>
             <div style='margin-top:8px; font-size:14px;'>
@@ -603,7 +624,7 @@ files in cwd:
                             {s_label}
                         </span>
                     </div>
-                    <div class="pig-wt">{r['weight_kg']:.3f} kg.</div>
+                    <div class="pig-wt">{r['weight_kg']:.3f} kg</div>
                 </div>
             """, unsafe_allow_html=True)
 
