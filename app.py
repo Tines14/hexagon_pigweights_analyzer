@@ -12,8 +12,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap');
 
-/* เปลี่ยนแค่ text ทั่วไป ไม่แตะ button/icon ของ Streamlit */
-html, body, p, div, span, h1, h2, h3, h4, h5, h6 {
+html, body, p, h1, h2, h3, h4, h5, h6 {
     font-family: 'Prompt', 'Segoe UI', sans-serif !important;
 }
 
