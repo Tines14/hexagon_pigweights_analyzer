@@ -571,7 +571,7 @@ files in cwd:
             <div style='margin-top:10px; padding:8px 14px; border-radius:8px;
                         background:{stage_color}22; border:1px solid {stage_color};
                         color:{stage_color}; font-size:14px; font-weight:600; display:inline-block;'>
-                {stage_icon} {stage_label}
+                {stage_label}
             </div>
         </div>
     """, unsafe_allow_html=True)
