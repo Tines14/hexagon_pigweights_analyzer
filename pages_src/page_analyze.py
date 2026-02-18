@@ -86,23 +86,17 @@ def _find_model(filename):
 @st.cache_resource
 def load_yolo():
     pt_path = _find_model("best.pt")
-    if YOLO_AVAILABLE and pt_path:
-        try:
-            return YOLO(pt_path)
-        except Exception as e:
-            st.warning(f"โหลด YOLO ไม่สำเร็จ: {e}")
-    return None
+    if not YOLO_AVAILABLE or not pt_path:
+        return None
+    return YOLO(pt_path)  # ให้ exception ลอยขึ้นมาเองถ้าพัง (จะเห็นใน Streamlit log)
 
 
 @st.cache_resource
 def load_rf():
     rf_path = _find_model("random_forest.pkl")
-    if JOBLIB_AVAILABLE and rf_path:
-        try:
-            return joblib.load(rf_path)
-        except Exception as e:
-            st.warning(f"โหลด RandomForest ไม่สำเร็จ: {e}")
-    return None
+    if not JOBLIB_AVAILABLE or not rf_path:
+        return None
+    return joblib.load(rf_path)
 
 # ─── Core analysis function ────────────────────────────────────────────────────
 def analyze_pig_image(pil_image: Image.Image, filename: str,
@@ -282,6 +276,10 @@ cwd          : {os.getcwd()}
 __file__     : {os.path.abspath(__file__)}
 best.pt found: {_find_model('best.pt') or 'NOT FOUND'}
 rf.pkl found : {_find_model('random_forest.pkl') or 'NOT FOUND'}
+YOLO_AVAILABLE : {YOLO_AVAILABLE}
+JOBLIB_AVAILABLE : {JOBLIB_AVAILABLE}
+yolo_model loaded: {yolo_model is not None}
+rf_model loaded  : {rf_model is not None}
 
 files in cwd:
 {chr(10).join(sorted(os.listdir(os.getcwd())))}
