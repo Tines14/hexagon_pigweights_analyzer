@@ -37,38 +37,55 @@ except ImportError:
 
 # ─── Model loading (cached) ────────────────────────────────────────────────────
 # หา root directory ของโปรเจกต์ (ที่เดียวกับ app.py)
-def _find_project_root():
-    """หา root ของโปรเจกต์โดยมองหา app.py"""
-    # เริ่มจาก directory ของไฟล์นี้แล้วเดินขึ้นไป
-    current = os.path.dirname(os.path.abspath(__file__))
-    for _ in range(5):
-        if os.path.exists(os.path.join(current, "app.py")):
-            return current
-        parent = os.path.dirname(current)
-        if parent == current:
-            break
-        current = parent
-    # fallback: ใช้ working directory ปัจจุบัน
-    return os.getcwd()
+def _build_search_paths(filename):
+    """สร้างรายการ path ที่เป็นไปได้ทั้งหมด รวมถึง Streamlit Cloud"""
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    cwd = os.getcwd()
 
-MODEL_DIR = _find_project_root()
-
-def _get_model_path(filename):
-    """หา path ของไฟล์โมเดล — ลอง root, cwd, และ script dir"""
-    candidates = [
-        os.path.join(MODEL_DIR, filename),
-        os.path.join(os.getcwd(), filename),
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), filename),
-        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), filename),
+    paths = [
+        filename,                                          # relative cwd
+        os.path.join(cwd, filename),                      # absolute cwd
+        os.path.join(script_dir, filename),               # same dir as script
+        os.path.join(script_dir, "..", filename),         # parent of script
+        os.path.join(script_dir, "..", "..", filename),   # grandparent
     ]
-    for p in candidates:
-        if os.path.exists(p):
-            return p
+
+    # Streamlit Cloud เก็บ repo ไว้ที่ /mount/src/<github-user>/<repo-name>/
+    for base in ["/mount/src", "/app", "/home/appuser"]:
+        if os.path.isdir(base):
+            # ระดับ base โดยตรง
+            paths.append(os.path.join(base, filename))
+            # ลง 1 ชั้น (username)
+            try:
+                for lvl1 in os.listdir(base):
+                    p1 = os.path.join(base, lvl1)
+                    paths.append(os.path.join(p1, filename))
+                    # ลง 2 ชั้น (repo name)
+                    if os.path.isdir(p1):
+                        try:
+                            for lvl2 in os.listdir(p1):
+                                paths.append(os.path.join(p1, lvl2, filename))
+                        except PermissionError:
+                            pass
+            except PermissionError:
+                pass
+
+    return paths
+
+
+def _find_model(filename):
+    for p in _build_search_paths(filename):
+        try:
+            if os.path.exists(p):
+                return os.path.realpath(p)
+        except Exception:
+            continue
     return None
+
 
 @st.cache_resource
 def load_yolo():
-    pt_path = _get_model_path("best.pt")
+    pt_path = _find_model("best.pt")
     if YOLO_AVAILABLE and pt_path:
         try:
             return YOLO(pt_path)
@@ -76,9 +93,10 @@ def load_yolo():
             st.warning(f"โหลด YOLO ไม่สำเร็จ: {e}")
     return None
 
+
 @st.cache_resource
 def load_rf():
-    rf_path = _get_model_path("random_forest.pkl")
+    rf_path = _find_model("random_forest.pkl")
     if JOBLIB_AVAILABLE and rf_path:
         try:
             return joblib.load(rf_path)
@@ -255,6 +273,23 @@ def render():
             st.success("✅ โหลด random_forest.pkl สำเร็จ")
         else:
             st.warning("⚠️ ไม่พบ random_forest.pkl — ใช้โหมด Demo")
+
+    # ─── Debug info (ช่วย troubleshoot path บน Streamlit Cloud) ────────────────
+    with st.expander("🔍 Debug: ข้อมูล Path (กดเพื่อดู)"):
+        import glob
+        st.code(f"""
+cwd          : {os.getcwd()}
+__file__     : {os.path.abspath(__file__)}
+best.pt found: {_find_model('best.pt') or 'NOT FOUND'}
+rf.pkl found : {_find_model('random_forest.pkl') or 'NOT FOUND'}
+
+files in cwd:
+{chr(10).join(sorted(os.listdir(os.getcwd())))}
+
+/mount/src exists: {os.path.isdir('/mount/src')}
+{'/mount/src contents: ' + str(os.listdir('/mount/src')) if os.path.isdir('/mount/src') else ''}
+""")
+
 
     st.markdown("<br>", unsafe_allow_html=True)
 
