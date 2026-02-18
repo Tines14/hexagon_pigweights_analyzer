@@ -443,7 +443,9 @@ files in cwd:
 {'/mount/src contents: ' + str(os.listdir('/mount/src')) if os.path.isdir('/mount/src') else ''}
 """)
 
-
+    if "upload_key" not in st.session_state:
+        st.session_state.upload_key = 0
+    
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ─── Upload zone ──────────────────────────────────────────────────────────
@@ -451,8 +453,14 @@ files in cwd:
         "📂 เลือกไฟล์รูปภาพหรือไฟล์ ZIP",
         type=["jpg", "jpeg", "png", "bmp", "webp", "tiff", "zip"],
         accept_multiple_files=True,
+        key=st.session_state.upload_key,
         help="รองรับ JPG, PNG, BMP, WEBP, TIFF และ .zip ที่มีรูปภาพอยู่ภายใน"
     )
+
+    if uploaded:
+        if st.button("🗑️ Clear Images", type="secondary"):
+            st.session_state.upload_key += 1
+            st.rerun()
 
     if not uploaded:
         st.markdown("""
