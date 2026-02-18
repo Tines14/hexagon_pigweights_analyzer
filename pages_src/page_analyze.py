@@ -587,7 +587,7 @@ files in cwd:
 
         for i, r in enumerate(sorted_results, 1):
         
-            s_icon, s_label, s_color = get_pig_stage(r['weight_kg'])
+            s_label, s_color = get_pig_stage(r['weight_kg'])
             st.markdown(f"""
                 <div class="pig-row">
                     <div>
@@ -600,7 +600,7 @@ files in cwd:
                         </span>
                         &nbsp;
                         <span style='font-size:12px; color:{s_color};'>
-                            {s_icon} {s_label}
+                            {s_label}
                         </span>
                     </div>
                     <div class="pig-wt">{r['weight_kg']:.3f} kg.</div>
