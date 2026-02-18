@@ -32,8 +32,8 @@ def _get_model_path(filename):
 def render():
     st.markdown("""
         <div class="page-header">
-            <h1>📊 เกี่ยวกับระบบ</h1>
-            <p>รายละเอียดโมเดลและวิธีการใช้งาน</p>
+            <h1>📊 About System</h1>
+            <p>Model details and usage instructions</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -46,7 +46,7 @@ def render():
         pt_path = _get_model_path("best.pt")
         exists  = pt_path is not None
         size    = f"{os.path.getsize(pt_path)/1e6:.1f} MB" if exists else "—"
-        status  = "🟢 พร้อมใช้งาน" if exists else "🔴 ไม่พบไฟล์"
+        status  = "🟢 Ready" if exists else "🔴 File not found"
         color   = "#2ecc71" if exists else "#e94560"
 
         st.markdown(f"""
@@ -74,7 +74,7 @@ def render():
         skp_path = _get_model_path("random_forest.pkl")
         exists2  = skp_path is not None
         size2    = f"{os.path.getsize(skp_path)/1e6:.1f} MB" if exists2 else "—"
-        status2  = "🟢 พร้อมใช้งาน" if exists2 else "🔴 ไม่พบไฟล์"
+        status2  = "🟢 Ready" if exists2 else "🔴 File not found"
         color2   = "#2ecc71" if exists2 else "#e94560"
 
         st.markdown(f"""
@@ -103,16 +103,16 @@ def render():
     st.markdown("### 🔄 Pipeline การทำงาน")
 
     steps = [
-        ("1", "📂", "รับภาพ",
-         "รองรับ JPG/PNG/BMP/WEBP/TIFF และ ZIP ที่มีภาพอยู่ภายใน"),
+        ("1", "📂", "Receive Image",
+        "Supports JPG/PNG/BMP/WEBP/TIFF and ZIP files containing images"),
         ("2", "🎯", "YOLO Detection",
-         "ตรวจจับตำแหน่งหมูในภาพ สร้าง Bounding Box พร้อม confidence score"),
+        "Detects pig locations in images, creates bounding boxes with confidence scores"),
         ("3", "📐", "Feature Extraction",
-         "สกัด features จาก bbox: width, height, area, aspect ratio, confidence"),
+        "Extracts features from bbox: width, height, area, aspect ratio, confidence"),
         ("4", "🌲", "Random Forest Predict",
-         "นำ features เข้า RandomForest เพื่อทำนายน้ำหนัก (กก.)"),
-        ("5", "📊", "แสดงผล & Export",
-         "แสดงภาพ before/after, น้ำหนัก, รายการทั้งหมด และดาวน์โหลด Excel"),
+        "Imports features into RandomForest to predict weight (kg)"),
+        ("5", "📊", "Display & Export",
+        "Displays before/after images, weight, total items, and downloads to Excel"),
     ]
 
     for num, icon, title, desc in steps:
@@ -134,7 +134,7 @@ def render():
 
     # ─── การติดตั้ง ───────────────────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("### 🛠️ การติดตั้ง & รันแอป")
+    st.markdown("### 🛠️ Installing and running the app.")
 
     st.markdown("**วางไฟล์โมเดลในโฟลเดอร์เดียวกับ `app.py`:**")
     st.code("""
@@ -154,14 +154,14 @@ pig_weight_app/
 pip install -r requirements.txt
     """, language="bash")
 
-    st.markdown("**รันแอป:**")
+    st.markdown("**Running app:**")
     st.code("""
 streamlit run app.py
     """, language="bash")
 
     # ─── Features ────────────────────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("### ✨ ฟีเจอร์ทั้งหมด")
+    st.markdown("### ✨ All features at a glance")
 
     features = [
         ("📁", "อัปโหลดหลายรูปพร้อมกันหรือ ZIP"),
