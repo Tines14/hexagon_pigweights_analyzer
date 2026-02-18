@@ -158,9 +158,9 @@ with st.sidebar:
 
     st.markdown("<hr style='border-color:#2a2a4a; margin:20px 0;'>", unsafe_allow_html=True)
     st.markdown("""
-        <div style='font-size:11px; color:#555; text-align:center;'>
-            Model: best.pt + RandomForest<br>
-            v1.0.0
+        <div style='font-size:12px; color:#555; text-align:center;'>
+            Model: Yolov8 and RandomForest<br>
+            Developed by: Hexagon Group<br>
         </div>
     """, unsafe_allow_html=True)
 
