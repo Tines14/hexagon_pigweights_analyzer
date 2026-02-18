@@ -15,7 +15,7 @@ st.markdown("""
 html, body, [class*="css"], [class*="st-"],
 p, div, span, h1, h2, h3, h4, h5, h6,
 button, input, label, textarea, select {
-    font-family: 'Prompt', sans-serif !important;
+    font-family: 'Prompt', 'Segoe UI', sans-serif !important;
 }
 
 /* Sidebar */
