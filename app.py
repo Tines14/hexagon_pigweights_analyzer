@@ -10,10 +10,12 @@ st.set_page_config(
 # ─── Custom CSS ───────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Sarabun', sans-serif;
+html, body, [class*="css"], [class*="st-"],
+p, div, span, h1, h2, h3, h4, h5, h6,
+button, input, label, textarea, select {
+    font-family: 'Prompt', sans-serif !important;
 }
 
 /* Sidebar */
@@ -37,7 +39,7 @@ html, body, [class*="css"] {
     border: none;
     background: transparent;
     color: #c8c8d8 !important;
-    font-family: 'Sarabun', sans-serif;
+    font-family: 'Prompt', sans-serif !important;;
     font-size: 15px;
     font-weight: 500;
     cursor: pointer;
