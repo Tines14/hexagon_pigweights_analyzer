@@ -14,6 +14,7 @@ import random
 import streamlit as st
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+from datetime import datetime
 
 # ─── Try importing model libraries ────────────────────────────────────────────
 try:
@@ -328,6 +329,7 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
         "clean_mask_img": clean_mask_img,
         "masked_img": masked_img,
         "bbox_count": bbox_count,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
     }
 
 # ─── Excel export ──────────────────────────────────────────────────────────────
@@ -407,7 +409,7 @@ def render():
     # Header
     st.markdown("""
         <div class="page-header">
-            <h1>📷 วิเคราะห์น้ำหนักหมู</h1>
+            <h1>📷 วิเคราะห์น้ำหนักสุกร</h1>
             <p>Upload group photos — supports single photos, multiple photos, or .zip files.</p>
         </div>
     """, unsafe_allow_html=True)
@@ -475,16 +477,26 @@ files in cwd:
                 st.rerun()
 
     if not uploaded:
-        st.markdown("""
-            <div style='text-align:center; color:#555; padding:60px 0;
-                        border:2px dashed #2a2a4a; border-radius:16px; margin-top:24px;'>
-                <div style='font-size:48px;'>🐷</div>
-                <div style='font-size:14px; margin-top:12px;'>
-                    There's no file yet — drag and drop the file or click the button above.
+        
+        stage_icon, stage_label, stage_color = get_pig_stage(primary['weight_kg'])
+
+        st.markdown(f"""
+            <div class="result-card">
+                <div style='font-size:15px; color:#aaa;'>📁 {primary['filename']}</div>
+                <div style='margin-top:4px; font-size:12px; color:#666;'>
+                    🕐 Analyzed at: {primary['timestamp']}
+                </div>
+                <div style='margin-top:8px; font-size:14px;'>
+                    Detected: <b>{primary['bbox_count']}</b> bounding box(es)
+                </div>
+                <div class="weight-badge">🐷 {primary['weight_kg']:.3f} kg</div>
+                <div style='margin-top:10px; padding:8px 14px; border-radius:8px;
+                            background:{stage_color}22; border:1px solid {stage_color};
+                            color:{stage_color}; font-size:14px; font-weight:600; display:inline-block;'>
+                    {stage_icon} {stage_label}
                 </div>
             </div>
         """, unsafe_allow_html=True)
-        return
 
     # ─── โหลดรูป ──────────────────────────────────────────────────────────────
     with st.spinner("⏳ Loading images..."):
@@ -595,6 +607,8 @@ files in cwd:
                                  reverse=True)
 
         for i, r in enumerate(sorted_results, 1):
+        
+            s_icon, s_label, s_color = get_pig_stage(r['weight_kg'])
             st.markdown(f"""
                 <div class="pig-row">
                     <div>
@@ -604,6 +618,10 @@ files in cwd:
                         &nbsp;
                         <span style='color:#555; font-size:12px;'>
                             ({r['bbox_count']} bbox)
+                        </span>
+                        &nbsp;
+                        <span style='font-size:12px; color:{s_color};'>
+                            {s_icon} {s_label}
                         </span>
                     </div>
                     <div class="pig-wt">{r['weight_kg']:.3f} kg.</div>
