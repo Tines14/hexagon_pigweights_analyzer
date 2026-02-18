@@ -520,8 +520,9 @@ files in cwd:
     # ── Summary metrics ──────────────────────────────────────────────────────
     weights = [r["weight_kg"] for r in results]
     avg_w   = round(sum(weights) / len(weights))
-    max_w   = round(max(weights))
     min_w   = round(min(weights))
+    max_w   = round(max(weights))
+    
 
     st.markdown(f"""
         <div class="metric-row">
