@@ -478,7 +478,7 @@ files in cwd:
 
     if not uploaded:
         st.markdown("""
-            <div style='text-align:center; color:#555; padding:60px 0;
+            <div style='text-align:center; color:#555; padding:50px 0;
                         border:2px dashed #2a2a4a; border-radius:16px; margin-top:24px;'>
                 <div style='font-size:48px;'>🐷</div>
                 <div style='font-size:14px; margin-top:12px;'>
@@ -510,7 +510,7 @@ files in cwd:
         time.sleep(0.05)
 
     progress.empty()
-    st.success(f"Analysis completed for {len(results)} images")
+    st.success(f"Analysis completed for **{len(results)}** images")
     st.markdown("<hr style='border-color:#2a2a4a;'>", unsafe_allow_html=True)
 
     # ═════════════════════════════════════════════════════════════════════════
