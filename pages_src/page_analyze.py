@@ -104,86 +104,77 @@ def load_rf():
         return None
     return joblib.load(rf_path)
 
+
+@st.cache_resource
+def load_scaler():
+    """โหลด StandardScaler ที่ใช้ตอน train"""
+    scaler_path = _find_model("feature_scaler.pkl")
+    if not JOBLIB_AVAILABLE or not scaler_path:
+        return None
+    return joblib.load(scaler_path)
+
 # ─── Mask / Contour feature extraction ───────────────────────────────────────
+# Feature order ตรงกับ selected_features ใน notebook:
+# ['mask_area', 'Convex_Hull_Area', 'longest', 'perimeter', 'Hu_1', 'Hu_2', 'Hu_4']
+SELECTED_FEATURES = ['mask_area', 'Convex_Hull_Area', 'longest', 'perimeter', 'Hu_1', 'Hu_2', 'Hu_4']
+
+
 def _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2):
     """
-    สกัด 7 features จาก segmentation mask ของ YOLO:
-    [mask_area, Hu_1, Hu_4, longest, Convex_Hull_Area, perimeter, Hu_2]
+    สกัด 7 features จาก segmentation mask ของ YOLO (ตรงกับ notebook extract_2d_geometric_features):
+    ['mask_area', 'Convex_Hull_Area', 'longest', 'perimeter', 'Hu_1', 'Hu_2', 'Hu_4']
 
-    ถ้าไม่มี mask (YOLO detect-only) จะสร้าง binary mask จาก bbox แทน
-    ถ้าไม่มี cv2 จะ fallback ด้วย bbox approximation
+    Hu moments = ค่าดิบจาก cv2.HuMoments (ไม่ใช้ log transform)
+    longest     = max(w, h) ของ minAreaRect (ตรง notebook)
     """
+    import cv2
     h_img, w_img = img_array.shape[:2]
 
     # ─── สร้าง binary mask ────────────────────────────────────────────────────
-    if CV2_AVAILABLE:
-        import cv2
-
-        if masks is not None and idx < len(masks.data):
-            # YOLO segmentation — ใช้ mask จริง
-            mask_raw = masks.data[idx].cpu().numpy()
-            # resize mask ให้ตรงกับขนาดภาพ
-            mask_bin = cv2.resize(mask_raw, (w_img, h_img),
-                                  interpolation=cv2.INTER_NEAREST)
-            mask_bin = (mask_bin > 0.5).astype(np.uint8)
-        else:
-            # YOLO detect-only — สร้าง mask จาก bbox
-            mask_bin = np.zeros((h_img, w_img), dtype=np.uint8)
-            mask_bin[y1:y2, x1:x2] = 1
-
-        # ─── คำนวณ features จาก contour ──────────────────────────────────────
-        contours, _ = cv2.findContours(mask_bin, cv2.RETR_EXTERNAL,
-                                       cv2.CHAIN_APPROX_SIMPLE)
-        if not contours:
-            # fallback ถ้าหา contour ไม่เจอ
-            return _bbox_fallback_features(x1, y1, x2, y2)
-
-        cnt = max(contours, key=cv2.contourArea)  # contour ที่ใหญ่สุด
-
-        mask_area        = float(cv2.contourArea(cnt))
-        perimeter        = float(cv2.arcLength(cnt, True))
-        hull             = cv2.convexHull(cnt)
-        convex_hull_area = float(cv2.contourArea(hull))
-
-        # Hu Moments
-        moments = cv2.moments(cnt)
-        hu = cv2.HuMoments(moments).flatten()
-        # ใช้ log transform (ป้องกัน 0)
-        hu_log = [-np.sign(h) * np.log10(abs(h) + 1e-10) for h in hu]
-        Hu_1 = hu_log[0]
-        Hu_2 = hu_log[1]
-        Hu_4 = hu_log[3]
-
-        # longest dimension (diagonal ของ bounding rect ของ contour)
-        _, _, cw, ch = cv2.boundingRect(cnt)
-        longest = float(np.sqrt(cw**2 + ch**2))
-
-        return [mask_area, Hu_1, Hu_4, longest, convex_hull_area, perimeter, Hu_2]
-
+    if masks is not None and idx < len(masks.data):
+        mask_raw = masks.data[idx].cpu().numpy()
+        mask_resized = cv2.resize(mask_raw, (w_img, h_img), interpolation=cv2.INTER_LINEAR)
+        mask_float = (mask_resized > 0.5).astype(np.float32)
     else:
-        # ไม่มี cv2 — fallback ด้วย bbox
-        return _bbox_fallback_features(x1, y1, x2, y2)
+        mask_float = np.zeros((h_img, w_img), dtype=np.float32)
+        mask_float[y1:y2, x1:x2] = 1.0
 
+    # ─── หา contour (ใช้ CHAIN_APPROX_NONE ตาม notebook) ────────────────────
+    mask_uint8 = (mask_float * 255).astype(np.uint8)
+    contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
-def _bbox_fallback_features(x1, y1, x2, y2):
-    """Approximate features จาก bbox เมื่อไม่มี cv2"""
-    w = x2 - x1
-    h = y2 - y1
-    mask_area        = float(w * h)
-    perimeter        = float(2 * (w + h))
-    convex_hull_area = mask_area
-    longest          = float(np.sqrt(w**2 + h**2))
-    ratio            = w / (h + 1e-6)
-    # Hu moments approximation (ใช้ค่าคงที่ที่สมเหตุสมผลสำหรับรูปสี่เหลี่ยม)
-    Hu_1 = float(np.log10(mask_area + 1))
-    Hu_2 = float(np.log10(perimeter + 1))
-    Hu_4 = float(ratio)
-    return [mask_area, Hu_1, Hu_4, longest, convex_hull_area, perimeter, Hu_2]
+    if not contours:
+        w = float(x2 - x1); h = float(y2 - y1)
+        return [w * h, w * h, max(w, h), 2 * (w + h), 0.0, 0.0, 0.0]
+
+    contour = max(contours, key=cv2.contourArea)
+
+    # ─── features ────────────────────────────────────────────────────────────
+    mask_area = float(cv2.contourArea(contour))
+    perimeter = float(cv2.arcLength(contour, True))
+
+    hull = cv2.convexHull(contour)
+    convex_hull_area = float(cv2.contourArea(hull))
+
+    # longest = max(w, h) ของ minAreaRect (ตรงกับ notebook)
+    rect = cv2.minAreaRect(contour)
+    w_r, h_r = rect[1]
+    longest = float(max(w_r, h_r))
+
+    # Hu Moments — ค่าดิบ ไม่ log (ตรงกับ notebook)
+    M = cv2.moments(contour)
+    hu = cv2.HuMoments(M).flatten()
+    Hu_1 = float(hu[0])
+    Hu_2 = float(hu[1])
+    Hu_4 = float(hu[3])
+
+    # ลำดับ: ['mask_area', 'Convex_Hull_Area', 'longest', 'perimeter', 'Hu_1', 'Hu_2', 'Hu_4']
+    return [mask_area, convex_hull_area, longest, perimeter, Hu_1, Hu_2, Hu_4]
 
 
 # ─── Core analysis function ────────────────────────────────────────────────────
 def analyze_pig_image(pil_image: Image.Image, filename: str,
-                       yolo_model, rf_model) -> dict:
+                       yolo_model, rf_model, scaler=None) -> dict:
     """
     วิเคราะห์รูปหมู 1 ตัว
     Returns dict: {filename, weight_kg, before_img, after_img, bbox_count}
@@ -228,6 +219,9 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
     if rf_model is not None and features_list:
         try:
             feat = np.array(features_list).mean(axis=0).reshape(1, -1)
+            # ใช้ scaler ก่อน predict (StandardScaler จาก feature_scaler.pkl)
+            if scaler is not None:
+                feat = scaler.transform(feat)
             weight_kg = float(rf_model.predict(feat)[0])
         except Exception as e:
             st.warning(f"RF error: {e}")
@@ -337,6 +331,7 @@ def render():
     # โหลดโมเดล
     yolo_model = load_yolo()
     rf_model   = load_rf()
+    scaler     = load_scaler()
 
     # สถานะโมเดล
     col_m1, col_m2 = st.columns(2)
@@ -363,6 +358,7 @@ YOLO_AVAILABLE : {YOLO_AVAILABLE}
 JOBLIB_AVAILABLE : {JOBLIB_AVAILABLE}
 yolo_model loaded: {yolo_model is not None}
 rf_model loaded  : {rf_model is not None}
+scaler loaded    : {scaler is not None}
 
 files in cwd:
 {chr(10).join(sorted(os.listdir(os.getcwd())))}
@@ -409,7 +405,7 @@ files in cwd:
     progress = st.progress(0, text="กำลังประมวลผล...")
 
     for i, (fname, img) in enumerate(images):
-        result = analyze_pig_image(img, fname, yolo_model, rf_model)
+        result = analyze_pig_image(img, fname, yolo_model, rf_model, scaler)
         results.append(result)
         progress.progress((i + 1) / len(images),
                           text=f"ประมวลผล {i+1}/{len(images)}: {fname}")
