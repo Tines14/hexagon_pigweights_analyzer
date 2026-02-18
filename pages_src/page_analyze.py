@@ -561,7 +561,7 @@ files in cwd:
             <div style='margin-top:8px; font-size:14px;'>
                 ตรวจพบ: <b>{primary['bbox_count']}</b> ตำแหน่ง
             </div>
-            <div class="weight-badge">🐷 {primary['weight_kg']:.2f} กก.</div>
+            <div class="weight-badge">🐷 {primary['weight_kg']:.3f} กก.</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -586,7 +586,7 @@ files in cwd:
                             ({r['bbox_count']} bbox)
                         </span>
                     </div>
-                    <div class="pig-wt">{r['weight_kg']} กก.</div>
+                    <div class="pig-wt">{r['weight_kg']:.5f} กก.</div>
                 </div>
             """, unsafe_allow_html=True)
 
