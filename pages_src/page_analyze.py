@@ -649,9 +649,9 @@ files in cwd:
         }});
         ctx.beginPath();
         ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
-        ctx.fillStyle = '#0e0e1a';
+        ctx.fillStyle = '#40404D';
         ctx.fill();
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#383838';
         ctx.font = 'bold 18px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
