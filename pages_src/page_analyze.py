@@ -622,7 +622,7 @@ files in cwd:
         <div style="text-align:center; font-family:sans-serif;">
             <div style="font-size:13px; color:#aaa; margin-bottom:8px;">Pig Stage Summary</div>
             <canvas id="stageChart" width="200" height="200"></canvas>
-            <div style="margin-top:8px; font-size:12px; color:#aaa; line-height:2;">
+            <div style="margin-top:8px; font-size:14px; color:#aaa; line-height:2;">
                 <span style="color:#888888;">●</span> Pre-Piglet: {stage_counts['Pre-Piglet']}&nbsp;&nbsp;
                 <span style="color:#E8E80E;">●</span> Piglet: {stage_counts['Piglet']}<br>
                 <span style="color:#ABE535;">●</span> Growing: {stage_counts['Growing']}&nbsp;&nbsp;
