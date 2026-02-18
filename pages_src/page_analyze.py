@@ -549,7 +549,21 @@ files in cwd:
     # ── แสดงภาพตัวอย่าง (ภาพแรก) ─────────────────────────────────────────────
     st.markdown("**Example of analysis results.**")
     primary = results[0]
-    stage_label, stage_color = get_pig_stage(primary['weight_kg']) 
+
+    # นับ stage ทุกรูป
+    stage_counts = {"Pre-Piglet": 0, "Piglet": 0, "Growing": 0, "Market": 0}
+    for r in results:
+        w = r["weight_kg"]
+        if w < 20:
+            stage_counts["Pre-Piglet"] += 1
+        elif w < 35:
+            stage_counts["Piglet"] += 1
+        elif w < 60:
+            stage_counts["Growing"] += 1
+        else:
+            stage_counts["Market"] += 1
+
+    stage_label, stage_color = get_pig_stage(primary['weight_kg'])
 
     # ── Row 1: Original + Raw Mask ─────────────────────────────────────────
     col1, col2 = st.columns(2, gap="large")
