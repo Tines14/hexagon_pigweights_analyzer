@@ -340,7 +340,7 @@ def build_excel(results: list[dict]) -> bytes:
     rows = []
     for i, r in enumerate(results, 1):
         rows.append({
-            "Order": i,
+            "Pig ID": i,
             "File name": r["filename"],
             "Estimated weight (kg)": r["weight_kg"],
             "Number of detected bounding boxes": r["bbox_count"],
@@ -601,8 +601,8 @@ files in cwd:
     st.markdown(f"""
         <div class="result-card" style="display:flex; align-items:center; gap:24px;">
             <div style="flex:1;">
-                <div style='font-size:15px; color:#aaa;'>📁 {primary['filename']}</div>
-                <div style='margin-top:4px; font-size:12px; color:#666;'>
+                <div style='font-size:14px; color:#aaa;'>📁 {primary['filename']}</div>
+                <div style='margin-top:6px; font-size:12px; color:#666;'>
                     🕐 Analyzed at: {primary['timestamp']}
                 </div>
                 <div style='margin-top:8px; font-size:14px;'>
@@ -621,21 +621,21 @@ files in cwd:
     components.html(f"""
         <div style="text-align:center; font-family:sans-serif;">
             <div style="font-size:13px; color:#aaa; margin-bottom:8px;">Pig Stage Summary</div>
-            <canvas id="stageChart" width="160" height="160"></canvas>
+            <canvas id="stageChart" width="200" height="200"></canvas>
             <div style="margin-top:8px; font-size:12px; color:#aaa; line-height:2;">
                 <span style="color:#888888;">●</span> Pre-Piglet: {stage_counts['Pre-Piglet']}&nbsp;&nbsp;
-                <span style="color:#f39c12;">●</span> Piglet: {stage_counts['Piglet']}<br>
-                <span style="color:#27ae60;">●</span> Growing: {stage_counts['Growing']}&nbsp;&nbsp;
-                <span style="color:#e94560;">●</span> Market: {stage_counts['Market']}
+                <span style="color:#E8E80E;">●</span> Piglet: {stage_counts['Piglet']}<br>
+                <span style="color:#ABE535;">●</span> Growing: {stage_counts['Growing']}&nbsp;&nbsp;
+                <span style="color:#ED5C0E;">●</span> Market: {stage_counts['Market']}
             </div>
         </div>
         <script>
         var canvas = document.getElementById('stageChart');
         var ctx = canvas.getContext('2d');
         var data = [{stage_counts['Pre-Piglet']}, {stage_counts['Piglet']}, {stage_counts['Growing']}, {stage_counts['Market']}];
-        var colors = ['#888888', '#f39c12', '#27ae60', '#e94560'];
+        var colors = ['#888888', '#E8E80E', '#ABE535', '#ED5C0E'];
         var total = data.reduce((a, b) => a + b, 0) || 1;
-        var cx = 80, cy = 80, r = 65, inner = 40;
+        var cx = 100, cy = 100, r = 85, inner = 50;
         var start = -Math.PI / 2;
         data.forEach(function(val, i) {{
             var slice = (val / total) * 2 * Math.PI;
@@ -657,7 +657,7 @@ files in cwd:
         ctx.textBaseline = 'middle';
         ctx.fillText(total, cx, cy);
         </script>
-    """, height=260)
+    """, height=300)
 
     # ── รายการภาพทั้งหมด (กรณีมีมากกว่า 1 ภาพ) ──────────────────────────────
     if len(results) > 1:
