@@ -651,7 +651,7 @@ files in cwd:
         ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
         ctx.fillStyle = '#40404D';
         ctx.fill();
-        ctx.fillStyle = '#383838';
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 18px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
