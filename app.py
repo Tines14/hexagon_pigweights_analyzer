@@ -37,7 +37,7 @@ html, body, [class*="css"] {
     border: none;
     background: transparent;
     color: #c8c8d8 !important;
-    font-family: 'Prompt', sans-serif;
+    font-family: 'Sarabun', sans-serif;
     font-size: 15px;
     font-weight: 500;
     cursor: pointer;
