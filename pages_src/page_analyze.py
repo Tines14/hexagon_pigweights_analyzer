@@ -390,6 +390,16 @@ def pil_to_bytes(img: Image.Image, fmt="PNG") -> bytes:
     img.save(buf, format=fmt)
     return buf.getvalue()
 
+def get_pig_stage(weight_kg):
+    if weight_kg < 20:
+        return "🐣", "Pre-Piglet (< 20 kg)", "#888888"
+    elif weight_kg < 35:
+        return "🐷", "Piglet stage (20–35 kg)", "#f39c12"
+    elif weight_kg < 60:
+        return "🐖", "Growing pig stage (35–60 kg)", "#27ae60"
+    else:
+        return "🐗", "Finishing/Market stage (60 kg+)", "#e94560"
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # RENDER
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -412,9 +422,9 @@ def render():
     col_m1, col_m2 = st.columns(2)
     with col_m1:
         if yolo_model:
-            st.success("✅ Best.pt file loaded successfully.")
+            st.success("✅ best.pt file loaded successfully.")
         else:
-            st.warning("⚠️ Best.pt not found — Use Demo mode.")
+            st.warning("⚠️ best.pt not found — Use Demo mode.")
     with col_m2:
         if rf_model:
             st.success("✅ random_forest.pkl loaded successfully.")
@@ -533,7 +543,7 @@ files in cwd:
     """, unsafe_allow_html=True)
 
     # ── แสดงภาพตัวอย่าง (ภาพแรก) ─────────────────────────────────────────────
-    st.markdown("###Example of analysis results.")
+    st.markdown("Example of analysis results.")
     primary = results[0]
 
     # ── Row 1: Original + Raw Mask ─────────────────────────────────────────
@@ -578,7 +588,7 @@ files in cwd:
     # ── รายการภาพทั้งหมด (กรณีมีมากกว่า 1 ภาพ) ──────────────────────────────
     if len(results) > 1:
         st.markdown("---")
-        st.markdown("###All analysis results")
+        st.markdown("All analysis results")
 
         # เรียงตามน้ำหนักมาก → น้อย
         sorted_results = sorted(results, key=lambda x: x["weight_kg"],
