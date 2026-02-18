@@ -3,7 +3,30 @@
 import os
 import streamlit as st
 
-MODEL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def _find_project_root():
+    """หา root ของโปรเจกต์โดยมองหา app.py"""
+    current = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(5):
+        if os.path.exists(os.path.join(current, "app.py")):
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    return os.getcwd()
+
+def _get_model_path(filename):
+    root = _find_project_root()
+    candidates = [
+        os.path.join(root, filename),
+        os.path.join(os.getcwd(), filename),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), filename),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), filename),
+    ]
+    for p in candidates:
+        if os.path.exists(p):
+            return p
+    return None
 
 
 def render():
@@ -20,8 +43,8 @@ def render():
     col1, col2 = st.columns(2)
 
     with col1:
-        pt_path = os.path.join(MODEL_DIR, "best.pt")
-        exists  = os.path.exists(pt_path)
+        pt_path = _get_model_path("best.pt")
+        exists  = pt_path is not None
         size    = f"{os.path.getsize(pt_path)/1e6:.1f} MB" if exists else "—"
         status  = "🟢 พร้อมใช้งาน" if exists else "🔴 ไม่พบไฟล์"
         color   = "#2ecc71" if exists else "#e94560"
@@ -48,15 +71,15 @@ def render():
         """, unsafe_allow_html=True)
 
     with col2:
-        skp_path = os.path.join(MODEL_DIR, "random_forest.pkl")
-        exists2  = os.path.exists(skp_path)
+        skp_path = _get_model_path("random_forest.pkl")
+        exists2  = skp_path is not None
         size2    = f"{os.path.getsize(skp_path)/1e6:.1f} MB" if exists2 else "—"
         status2  = "🟢 พร้อมใช้งาน" if exists2 else "🔴 ไม่พบไฟล์"
         color2   = "#2ecc71" if exists2 else "#e94560"
 
         st.markdown(f"""
             <div class="result-card">
-                <div style='font-size:18px; font-weight:700;'>🌲 Random Forest (.skp)</div>
+                <div style='font-size:18px; font-weight:700;'>🌲 Random Forest (.pkl)</div>
                 <div style='margin-top:10px; font-size:14px; color:#aaa;'>
                     รับ features จาก YOLO แล้วทำนายน้ำหนักเป็น กก.
                 </div>
@@ -70,7 +93,7 @@ def render():
                     <span style='color:#777; font-size:13px;'>ขนาด: {size2}</span>
                 </div>
                 <div style='margin-top:8px; font-size:12px; color:#555;'>
-                    path: random_forest.skp
+                    path: random_forest.pkl
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -118,7 +141,7 @@ def render():
 pig_weight_app/
 ├── app.py
 ├── best.pt               ← โมเดล YOLOv8
-├── random_forest.skp     ← โมเดล RandomForest
+├── random_forest.pkl     ← โมเดล RandomForest
 ├── requirements.txt
 └── pages_src/
     ├── __init__.py

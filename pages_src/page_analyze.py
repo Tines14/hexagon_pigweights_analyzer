@@ -1,7 +1,7 @@
 """
 หน้าที่ 1 - วิเคราะห์น้ำหนักหมู
 รองรับ: รูปเดียว / หลายรูป / ไฟล์ ZIP
-โมเดล: best.pt (YOLOv8) + random_forest.skp (RandomForest)
+โมเดล: best.pt (YOLOv8) + random_forest.pkl (RandomForest)
 """
 
 import io
@@ -36,20 +36,54 @@ except ImportError:
     EXCEL_AVAILABLE = False
 
 # ─── Model loading (cached) ────────────────────────────────────────────────────
-MODEL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# หา root directory ของโปรเจกต์ (ที่เดียวกับ app.py)
+def _find_project_root():
+    """หา root ของโปรเจกต์โดยมองหา app.py"""
+    # เริ่มจาก directory ของไฟล์นี้แล้วเดินขึ้นไป
+    current = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(5):
+        if os.path.exists(os.path.join(current, "app.py")):
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    # fallback: ใช้ working directory ปัจจุบัน
+    return os.getcwd()
+
+MODEL_DIR = _find_project_root()
+
+def _get_model_path(filename):
+    """หา path ของไฟล์โมเดล — ลอง root, cwd, และ script dir"""
+    candidates = [
+        os.path.join(MODEL_DIR, filename),
+        os.path.join(os.getcwd(), filename),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), filename),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), filename),
+    ]
+    for p in candidates:
+        if os.path.exists(p):
+            return p
+    return None
 
 @st.cache_resource
 def load_yolo():
-    pt_path = os.path.join(MODEL_DIR, "best.pt")
-    if YOLO_AVAILABLE and os.path.exists(pt_path):
-        return YOLO(pt_path)
+    pt_path = _get_model_path("best.pt")
+    if YOLO_AVAILABLE and pt_path:
+        try:
+            return YOLO(pt_path)
+        except Exception as e:
+            st.warning(f"โหลด YOLO ไม่สำเร็จ: {e}")
     return None
 
 @st.cache_resource
 def load_rf():
-    rf_path = os.path.join(MODEL_DIR, "random_forest.pkl")
-    if JOBLIB_AVAILABLE and os.path.exists(rf_path):
-        return joblib.load(rf_path)
+    rf_path = _get_model_path("random_forest.pkl")
+    if JOBLIB_AVAILABLE and rf_path:
+        try:
+            return joblib.load(rf_path)
+        except Exception as e:
+            st.warning(f"โหลด RandomForest ไม่สำเร็จ: {e}")
     return None
 
 # ─── Core analysis function ────────────────────────────────────────────────────
@@ -218,9 +252,9 @@ def render():
             st.warning("⚠️ ไม่พบ best.pt — ใช้โหมด Demo")
     with col_m2:
         if rf_model:
-            st.success("✅ โหลด random_forest.skp สำเร็จ")
+            st.success("✅ โหลด random_forest.pkl สำเร็จ")
         else:
-            st.warning("⚠️ ไม่พบ random_forest.skp — ใช้โหมด Demo")
+            st.warning("⚠️ ไม่พบ random_forest.pkl — ใช้โหมด Demo")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
