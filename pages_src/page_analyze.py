@@ -35,6 +35,12 @@ try:
 except ImportError:
     EXCEL_AVAILABLE = False
 
+try:
+    import cv2
+    CV2_AVAILABLE = True
+except ImportError:
+    CV2_AVAILABLE = False
+
 # ─── Model loading (cached) ────────────────────────────────────────────────────
 # หา root directory ของโปรเจกต์ (ที่เดียวกับ app.py)
 def _build_search_paths(filename):
@@ -98,6 +104,83 @@ def load_rf():
         return None
     return joblib.load(rf_path)
 
+# ─── Mask / Contour feature extraction ───────────────────────────────────────
+def _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2):
+    """
+    สกัด 7 features จาก segmentation mask ของ YOLO:
+    [mask_area, Hu_1, Hu_4, longest, Convex_Hull_Area, perimeter, Hu_2]
+
+    ถ้าไม่มี mask (YOLO detect-only) จะสร้าง binary mask จาก bbox แทน
+    ถ้าไม่มี cv2 จะ fallback ด้วย bbox approximation
+    """
+    h_img, w_img = img_array.shape[:2]
+
+    # ─── สร้าง binary mask ────────────────────────────────────────────────────
+    if CV2_AVAILABLE:
+        import cv2
+
+        if masks is not None and idx < len(masks.data):
+            # YOLO segmentation — ใช้ mask จริง
+            mask_raw = masks.data[idx].cpu().numpy()
+            # resize mask ให้ตรงกับขนาดภาพ
+            mask_bin = cv2.resize(mask_raw, (w_img, h_img),
+                                  interpolation=cv2.INTER_NEAREST)
+            mask_bin = (mask_bin > 0.5).astype(np.uint8)
+        else:
+            # YOLO detect-only — สร้าง mask จาก bbox
+            mask_bin = np.zeros((h_img, w_img), dtype=np.uint8)
+            mask_bin[y1:y2, x1:x2] = 1
+
+        # ─── คำนวณ features จาก contour ──────────────────────────────────────
+        contours, _ = cv2.findContours(mask_bin, cv2.RETR_EXTERNAL,
+                                       cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
+            # fallback ถ้าหา contour ไม่เจอ
+            return _bbox_fallback_features(x1, y1, x2, y2)
+
+        cnt = max(contours, key=cv2.contourArea)  # contour ที่ใหญ่สุด
+
+        mask_area        = float(cv2.contourArea(cnt))
+        perimeter        = float(cv2.arcLength(cnt, True))
+        hull             = cv2.convexHull(cnt)
+        convex_hull_area = float(cv2.contourArea(hull))
+
+        # Hu Moments
+        moments = cv2.moments(cnt)
+        hu = cv2.HuMoments(moments).flatten()
+        # ใช้ log transform (ป้องกัน 0)
+        hu_log = [-np.sign(h) * np.log10(abs(h) + 1e-10) for h in hu]
+        Hu_1 = hu_log[0]
+        Hu_2 = hu_log[1]
+        Hu_4 = hu_log[3]
+
+        # longest dimension (diagonal ของ bounding rect ของ contour)
+        _, _, cw, ch = cv2.boundingRect(cnt)
+        longest = float(np.sqrt(cw**2 + ch**2))
+
+        return [mask_area, Hu_1, Hu_4, longest, convex_hull_area, perimeter, Hu_2]
+
+    else:
+        # ไม่มี cv2 — fallback ด้วย bbox
+        return _bbox_fallback_features(x1, y1, x2, y2)
+
+
+def _bbox_fallback_features(x1, y1, x2, y2):
+    """Approximate features จาก bbox เมื่อไม่มี cv2"""
+    w = x2 - x1
+    h = y2 - y1
+    mask_area        = float(w * h)
+    perimeter        = float(2 * (w + h))
+    convex_hull_area = mask_area
+    longest          = float(np.sqrt(w**2 + h**2))
+    ratio            = w / (h + 1e-6)
+    # Hu moments approximation (ใช้ค่าคงที่ที่สมเหตุสมผลสำหรับรูปสี่เหลี่ยม)
+    Hu_1 = float(np.log10(mask_area + 1))
+    Hu_2 = float(np.log10(perimeter + 1))
+    Hu_4 = float(ratio)
+    return [mask_area, Hu_1, Hu_4, longest, convex_hull_area, perimeter, Hu_2]
+
+
 # ─── Core analysis function ────────────────────────────────────────────────────
 def analyze_pig_image(pil_image: Image.Image, filename: str,
                        yolo_model, rf_model) -> dict:
@@ -117,7 +200,9 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
         try:
             results = yolo_model(img_array, verbose=False)
             for r in results:
-                for box in r.boxes:
+                masks = r.masks  # segmentation masks (None ถ้า YOLO detect-only)
+
+                for idx, box in enumerate(r.boxes):
                     x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
                     conf = float(box.conf[0])
                     bbox_count += 1
@@ -131,12 +216,10 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
                               f"Pig {conf:.2f}",
                               fill="white")
 
-                    # สกัด feature จาก bbox
-                    w_px = x2 - x1
-                    h_px = y2 - y1
-                    area = w_px * h_px
-                    ratio = w_px / (h_px + 1e-6)
-                    features_list.append([w_px, h_px, area, ratio, conf])
+                    # ── สกัด mask/contour features (7 features) ──────────────
+                    # features: mask_area, Hu_1, Hu_4, longest, Convex_Hull_Area, perimeter, Hu_2
+                    feat = _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2)
+                    features_list.append(feat)
         except Exception as e:
             st.warning(f"YOLO error: {e}")
 
