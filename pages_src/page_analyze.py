@@ -458,9 +458,11 @@ files in cwd:
     )
 
     if uploaded:
-        if st.button("Clear Images", type="secondary", use_container_width=True):
-            st.session_state.upload_key += 1
-            st.rerun()
+        col_clear = st.columns([1, 1, 1])
+        with col_clear[1]:
+            if st.button("🗑️ เคลียร์รูปทั้งหมด", type="secondary", use_container_width=True):
+                st.session_state.upload_key += 1
+                st.rerun()
 
     if not uploaded:
         st.markdown("""
