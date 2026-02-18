@@ -16,6 +16,7 @@ html, body, p, h1, h2, h3, h4, h5, h6 {
     font-family: 'Prompt', 'Segoe UI', sans-serif !important;
 }
 
+            
 /* Sidebar */
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
@@ -55,6 +56,11 @@ html, body, p, h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 4px 15px rgba(233,69,96,0.4);
 }
 
+[data-testid="stSidebar"] button p {
+    font-family: 'Prompt', sans-serif !important;
+}
+
+            
 /* Page header */
 .page-header {
     background: linear-gradient(135deg, #1a1a2e, #16213e);
