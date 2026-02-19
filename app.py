@@ -149,9 +149,9 @@ with st.sidebar:
         ("About System",    "about"),
     ]
 
-    for icon, label, key in pages:
+    for label, key in pages:
         active = "active" if st.session_state.page == key else ""
-        if st.button(f"{icon}  {label}", key=f"nav_{key}",
+        if st.button(f"{label}", key=f"nav_{key}",
                      use_container_width=True):
             st.session_state.page = key
             st.rerun()
