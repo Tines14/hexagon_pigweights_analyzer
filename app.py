@@ -145,8 +145,8 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     pages = [
-        ("📷", "Analyze Pig Weight", "analyze"),
-        ("📊", "About System",    "about"),
+        ("Analyze Pig Weight", "analyze"),
+        ("About System",    "about"),
     ]
 
     for icon, label, key in pages:
