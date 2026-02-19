@@ -115,7 +115,7 @@ def render():
         "Displays before/after images, weight, total items, and downloads to Excel"),
     ]
 
-    for num, icon, title, desc in steps:
+    for num, title, desc in steps:
         st.markdown(f"""
             <div style='display:flex; gap:16px; margin-bottom:12px;
                         background:#1a1a2e; border:1px solid #2a2a4a;
