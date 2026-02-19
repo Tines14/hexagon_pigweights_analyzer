@@ -126,7 +126,7 @@ def render():
                     {num}
                 </div>
                 <div>
-                    <div style='font-weight:600; font-size:15px;'>{icon} {title}</div>
+                    <div style='font-weight:600; font-size:15px;'>{title}</div>
                     <div style='color:#aaa; font-size:13px; margin-top:4px;'>{desc}</div>
                 </div>
             </div>
