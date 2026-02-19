@@ -409,7 +409,7 @@ def render():
     # Header
     st.markdown("""
         <div class="page-header">
-            <h1>📷 วิเคราะห์น้ำหนักสุกร</h1>
+            <h1>วิเคราะห์น้ำหนักสุกร</h1>
             <p>Upload group photos — supports single photos, multiple photos, or .zip files.</p>
         </div>
     """, unsafe_allow_html=True)

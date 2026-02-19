@@ -32,7 +32,7 @@ def _get_model_path(filename):
 def render():
     st.markdown("""
         <div class="page-header">
-            <h1>📊 About System</h1>
+            <h1>About System</h1>
             <p>Model details and usage instructions</p>
         </div>
     """, unsafe_allow_html=True)
@@ -103,15 +103,15 @@ def render():
     st.markdown("### 🔄 Pipeline การทำงาน")
 
     steps = [
-        ("1", "📂", "Receive Image",
+        ("1", "Receive Image",
         "Supports JPG/PNG/BMP/WEBP/TIFF and ZIP files containing images"),
-        ("2", "🎯", "YOLO Detection",
+        ("2", "YOLO Detection",
         "Detects pig locations in images, creates bounding boxes with confidence scores"),
-        ("3", "📐", "Feature Extraction",
+        ("3", "Feature Extraction",
         "Extracts features from bbox: width, height, area, aspect ratio, confidence"),
-        ("4", "🌲", "Random Forest Predict",
+        ("4", "Random Forest Predict",
         "Imports features into RandomForest to predict weight (kg)"),
-        ("5", "📊", "Display & Export",
+        ("5", "Display & Export",
         "Displays before/after images, weight, total items, and downloads to Excel"),
     ]
 
@@ -164,14 +164,14 @@ streamlit run app.py
     st.markdown("### ✨ All features at a glance")
 
     features = [
-        ("📁", "Upload multiple images at once or ZIP"),        
-        ("🎯", "YOLO automatically detects bounding boxes"),
-        ("🌲", "RandomForest predicts weight (kg)"),
-        ("🖼️", "Show before/after images with layout"),
-        ("📋", "Results list sorted by weight"),
-        ("📥", "Download results as Excel (.xlsx)"),
-        ("📊", "Summary of avg/max/min weight"),
-        ("🔄", "Demo mode when no model is generated"),
+        ("Upload multiple images at once or ZIP"),        
+        ("YOLO automatically detects bounding boxes"),
+        ("RandomForest predicts weight (kg)"),
+        ("Show before/after images with layout"),
+        ("Results list sorted by weight"),
+        ("Download results as Excel (.xlsx)"),
+        ("Summary of avg/max/min weight"),
+        ("Demo mode when no model is generated"),
     ]
 
     cols = st.columns(2)
