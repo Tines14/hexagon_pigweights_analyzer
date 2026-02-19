@@ -175,12 +175,12 @@ streamlit run app.py
     ]
 
     cols = st.columns(2)
-    for i, (icon, text) in enumerate(features):
+    for i, (text) in enumerate(features):
         with cols[i % 2]:
             st.markdown(f"""
                 <div style='background:#1a1a2e; border:1px solid #2a2a4a;
                              border-radius:10px; padding:12px 16px; margin-bottom:8px;
                              color:white; font-size:14px;'>
-                    {icon} &nbsp; {text}
+                    &nbsp; {text}
                 </div>
             """, unsafe_allow_html=True)
