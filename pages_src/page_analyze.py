@@ -131,57 +131,30 @@ def load_selected_features():
 SELECTED_FEATURES = ['mask_area', 'Convex_Hull_Area', 'longest', 'perimeter', 'Hu_1', 'Hu_2', 'Hu_4']
 
 
-def _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2):
-    """
-    สกัด 7 features จาก segmentation mask ของ YOLO (ตรงกับ notebook extract_2d_geometric_features):
-    ['mask_area', 'Convex_Hull_Area', 'longest', 'perimeter', 'Hu_1', 'Hu_2', 'Hu_4']
-
-    Hu moments = ค่าดิบจาก cv2.HuMoments (ไม่ใช้ log transform)
-    longest = max(w, h) ของ minAreaRect (ตรง notebook)
-    """
+def _extract_features_from_clean(clean_uint8):
+    """สกัด feature จาก clean mask โดยตรง ตรงกับ Notebook extract_2d_geometric_features"""
     import cv2
-    h_img, w_img = img_array.shape[:2]
-
-    # ─── สร้าง binary mask ────────────────────────────────────────────────────
-    if masks is not None and idx < len(masks.data):
-        mask_raw = masks.data[idx].cpu().numpy()
-        mask_resized = cv2.resize(mask_raw, (w_img, h_img), interpolation=cv2.INTER_LINEAR)
-        mask_float = (mask_resized > 0.5).astype(np.float32)
-    else:
-        mask_float = np.zeros((h_img, w_img), dtype=np.float32)
-        mask_float[y1:y2, x1:x2] = 1.0
-
-    # ─── หา contour (ใช้ CHAIN_APPROX_NONE ตาม notebook) ────────────────────
-    mask_uint8 = (mask_float * 255).astype(np.uint8)
-    contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
+    
+    contours, _ = cv2.findContours(clean_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     if not contours:
-        w = float(x2 - x1); h = float(y2 - y1)
-        return [w * h, w * h, max(w, h), 2 * (w + h), 0.0, 0.0, 0.0]
+        return [0.0] * 7
 
-    contour = max(contours, key=cv2.contourArea)
-
-    # ─── features ────────────────────────────────────────────────────────────
-    mask_area = float(cv2.contourArea(contour))
-    perimeter = float(cv2.arcLength(contour, True))
-
-    hull = cv2.convexHull(contour)
-    convex_hull_area = float(cv2.contourArea(hull))
-
-    # longest = max(w, h) ของ minAreaRect (ตรงกับ notebook)
-    rect = cv2.minAreaRect(contour)
+    contour  = max(contours, key=cv2.contourArea)
+    hull     = cv2.convexHull(contour)
+    rect     = cv2.minAreaRect(contour)
     w_r, h_r = rect[1]
-    longest = float(max(w_r, h_r))
+    M        = cv2.moments(contour)
+    hu       = cv2.HuMoments(M).flatten()
 
-    # Hu Moments — ค่าดิบ ไม่ log (ตรงกับ notebook)
-    M = cv2.moments(contour)
-    hu = cv2.HuMoments(M).flatten()
-    Hu_1 = float(hu[0])
-    Hu_2 = float(hu[1])
-    Hu_4 = float(hu[3])
-
-    # ลำดับ: ['mask_area', 'Convex_Hull_Area', 'longest', 'perimeter', 'Hu_1', 'Hu_2', 'Hu_4']
-    return [mask_area, convex_hull_area, longest, perimeter, Hu_1, Hu_2, Hu_4]
+    return [
+        float(cv2.contourArea(contour)),   # mask_area
+        float(cv2.contourArea(hull)),       # Convex_Hull_Area
+        float(max(w_r, h_r)),               # longest
+        float(cv2.arcLength(contour, True)),# perimeter
+        float(hu[0]),                       # Hu_1
+        float(hu[1]),                       # Hu_2
+        float(hu[3]),                       # Hu_4
+    ]
 
 
 # ─── Mask cleaning (ตาม notebook clean_pig_mask) ─────────────────────────────
@@ -303,7 +276,7 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
                     masked_img = Image.fromarray(masked_np)
 
                     # ── สกัด features จาก clean mask ──────────────────────────
-                    feat = _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2)
+                    feat = _extract_features_from_clean(clean_uint8)
                     features_list.append(feat)
 
                     # ── Debug: แสดงค่า feature ──────────────────────────────
