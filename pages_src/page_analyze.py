@@ -525,21 +525,51 @@ def render():
         color:#e94560;
     }
 
-    /* -------- File uploader bigger -------- */
+    /* ============================= */
+    /* FILE UPLOADER */
+    /* ============================= */
+
     section[data-testid="stFileUploader"] {
-        border:2px dashed #2a2a4a;
-        padding:25px;
-        border-radius:16px;
+        border:2px dashed rgba(34,197,94,0.5);
+        padding:30px;
+        border-radius:18px;
+        background: rgba(255,255,255,0.03);
     }
 
-    /* -------- Text size tweak -------- */
-    html, body, [class*="css"]  {
-        font-size:14px;
+    /* ============================= */
+    /* BUTTONS */
+    /* ============================= */
+
+    .stButton > button {
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+        color: white;
+        border-radius: 12px;
+        border:none;
+        padding: 0.6rem 1rem;
+        font-weight:600;
+        transition:0.3s;
+    }
+
+    .stButton > button:hover {
+        transform: scale(1.03);
+    }
+
+    /* ============================= */
+    /* SCROLLBAR */
+    /* ============================= */
+
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #22c55e;
+        border-radius: 4px;
     }
 
     </style>
     """, unsafe_allow_html=True)
-
+    
     # Header
     st.markdown("""
         <div class="page-header">
