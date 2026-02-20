@@ -613,24 +613,24 @@ def render():
     with st.expander("Debug: click to view"):
         import glob
         st.code(f"""
-**Path information**
-cwd          : {os.getcwd()}
-__file__     : {os.path.abspath(__file__)}
-best.pt found: {_find_model('best.pt') or 'NOT FOUND'}
-rf.pkl found : {_find_model('random_forest.pkl') or 'NOT FOUND'}
-YOLO_AVAILABLE : {YOLO_AVAILABLE}
-JOBLIB_AVAILABLE : {JOBLIB_AVAILABLE}
-yolo_model loaded: {yolo_model is not None}
-rf_model loaded  : {rf_model is not None}
-scaler loaded    : {scaler is not None}
-selected_features: {selected_features}
+            **Path information**
+            cwd          : {os.getcwd()}
+            __file__     : {os.path.abspath(__file__)}
+            best.pt found: {_find_model('best.pt') or 'NOT FOUND'}
+            rf.pkl found : {_find_model('random_forest.pkl') or 'NOT FOUND'}
+            YOLO_AVAILABLE : {YOLO_AVAILABLE}
+            JOBLIB_AVAILABLE : {JOBLIB_AVAILABLE}
+            yolo_model loaded: {yolo_model is not None}
+            rf_model loaded  : {rf_model is not None}
+            scaler loaded    : {scaler is not None}
+            selected_features: {selected_features}
 
-files in cwd:
-{chr(10).join(sorted(os.listdir(os.getcwd())))}
+            files in cwd:
+            {chr(10).join(sorted(os.listdir(os.getcwd())))}
 
-/mount/src exists: {os.path.isdir('/mount/src')}
-{'/mount/src contents: ' + str(os.listdir('/mount/src')) if os.path.isdir('/mount/src') else ''}
-""")
+            /mount/src exists: {os.path.isdir('/mount/src')}
+            {'/mount/src contents: ' + str(os.listdir('/mount/src')) if os.path.isdir('/mount/src') else ''}
+            """)
 
     if "upload_key" not in st.session_state:
         st.session_state.upload_key = 0
@@ -742,7 +742,7 @@ files in cwd:
     stage_label, stage_color = get_pig_stage(primary['weight_kg'])
 
     # ── Row 1: Original + Raw Mask ─────────────────────────────────────────
-    col1, col2 = st.columns(2, gap="large")
+    col1, col2 = st.columns(2, gap="medium")
     with col1:
         st.markdown("**Original Image**")
         st.image(primary["before_img"], use_container_width=True)
@@ -756,7 +756,7 @@ files in cwd:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Row 2: Clean Mask + Masked Image ──────────────────────────────────
-    col3, col4 = st.columns(2, gap="large")
+    col3, col4 = st.columns(2, gap="medium")
     with col3:
         st.markdown("**Clean Mask (After Cleaning)**")
         if primary["clean_mask_img"] is not None:
@@ -777,17 +777,17 @@ files in cwd:
     st.markdown(f"""
         <div class="result-card" style="display:flex; align-items:center; gap:22px;">
             <div style="flex:1;">
-                <div style='font-size:14px; color:#aaa;'>📁 {primary['filename']}</div>
-                <div style='margin-top:6px; font-size:12px; color:#666;'>
+                <div style='font-size:18px; color:#aaa;'>📁 {primary['filename']}</div>
+                <div style='margin-top:8px; font-size:14px; color:#666;'>
                     🕐 Analyzed at: {primary['timestamp']}
                 </div>
-                <div style='margin-top:8px; font-size:14px;'>
+                <div style='margin-top:8px; font-size:16px;'>
                     Detected: <b>{primary['bbox_count']}</b> bounding box(es)
                 </div>
                 <div class="weight-badge">{primary['weight_kg']:.3f} kg</div>
                 <div style='margin-top:10px; padding:8px 14px; border-radius:8px;
                             background:{stage_color}22; border:1px solid {stage_color};
-                            color:{stage_color}; font-size:14px; font-weight:600; display:inline-block;'>
+                            color:{stage_color}; font-size:16px; font-weight:600; display:inline-block;'>
                     {stage_label}
                 </div>
             </div>
@@ -798,7 +798,7 @@ files in cwd:
         <div style="text-align:center; font-family:sans-serif;">
             <div style="font-size:13px; color:#aaa; margin-bottom:8px;">Pig Stage Summary</div>
             <canvas id="stageChart" width="200" height="200"></canvas>
-            <div style="margin-top:8px; font-size:14px; color:#aaa; line-height:2;">
+            <div style="margin-top:8px; font-size:16px; color:#aaa; line-height:2;">
                 <span style="color:#888888;">●</span> Pre-Piglet: {stage_counts['Pre-Piglet']}&nbsp;&nbsp;
                 <span style="color:#E8E80E;">●</span> Piglet: {stage_counts['Piglet']}<br>
                 <span style="color:#ABE535;">●</span> Growing: {stage_counts['Growing']}&nbsp;&nbsp;
@@ -850,7 +850,7 @@ files in cwd:
             st.markdown(f"""
                 <div class="pig-row">
                     <div>
-                        <span style='color:#555; font-size:13px;'>#{i}</span>
+                        <span style='color:#555; font-size:14px;'>#{i}</span>
                         &nbsp;
                         <span class="pig-name">{r['filename']}</span>
                         &nbsp;
@@ -858,7 +858,7 @@ files in cwd:
                             ({r['bbox_count']} bbox)
                         </span>
                         &nbsp;
-                        <span style='font-size:12px; color:{s_color};'>
+                        <span style='font-size:14px; color:{s_color};'>
                             {s_label}
                         </span>
                     </div>
@@ -867,17 +867,25 @@ files in cwd:
             """, unsafe_allow_html=True)
 
     # ───Btn Download Excel ──────────────────────────────────────────────────────
-    st.markdown("---")
-    st.markdown("⬇️ Download Results")
+    st.markdown("""
+        <style>
+        div.stDownloadButton > button {
+            background-color: #1f4ed8;
+            color: white;
+            border-radius: 8px;
+            height: 45px;
+            font-weight: 600;
+        }
+        div.stDownloadButton > button:hover {
+            background-color: #1e40af;
+            color: white;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-    if EXCEL_AVAILABLE:
-        excel_bytes = build_excel(results)
-        st.download_button(
-            label="⬇️ Download the Excel file (.xlsx).",
-            data=excel_bytes,
-            file_name="pig_weight_results.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True,
-        )
-    else:
-        st.error("❌ pandas/openpyxl not found — Install with: `pip install pandas openpyxl`")
+    st.download_button(
+        "⬇️ Download Excel",
+        excel_bytes,
+        "pig_weight_results.xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
