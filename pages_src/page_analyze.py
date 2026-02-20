@@ -475,12 +475,12 @@ def render():
     }           
 
     .metric-card .val {
-        font-size:26px;
+        font-size:28px;
         font-weight:700;
     }
 
     .metric-card .lbl {
-        font-size:16px;
+        font-size:1px;
         color:#9ca3af;
         margin-top:4px;
     }
