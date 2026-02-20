@@ -16,6 +16,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
 
+from sympy import ordered
+
 # ─── Try importing model libraries ────────────────────────────────────────────
 try:
     from ultralytics import YOLO
@@ -311,12 +313,18 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
             feat_names  = selected_features if selected_features else SELECTED_FEATURES
             feat_values = np.array(features_list).mean(axis=0)  # shape: (7,)
             # map ตามลำดับจาก SELECTED_FEATURES → feat_names
-            feat_map = dict(zip(SELECTED_FEATURES, feat_values))
-            ordered  = np.array([feat_map.get(f, 0.0) for f in feat_names]).reshape(1, -1)
-            # scale ก่อน predict
+            feat_map    = dict(zip(SELECTED_FEATURES, feat_values))
+            
+            import pandas as pd
+            ordered_df = pd.DataFrame([[feat_map.get(f, 0.0) for f in feat_names]], 
+                           columns=feat_names)
             if scaler is not None:
-                ordered = scaler.transform(ordered)
+                ordered = scaler.transform(ordered_df)
+            else:
+                ordered = ordered_df.values
+
             weight_kg = float(rf_model.predict(ordered)[0])
+            
 
             # ── Debug: แสดงค่าหลัง scale และผลลัพธ์ ──────────────────────
             
