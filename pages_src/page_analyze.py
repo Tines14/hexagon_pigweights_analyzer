@@ -574,7 +574,10 @@ def render():
     .stButton > button:hover {
         background-color: #16a34a;
         transform: scale(1.03);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+
+            
 
     /* ============================= */
     /* SCROLLBAR */
