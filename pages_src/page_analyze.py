@@ -433,8 +433,8 @@ def render():
     <style>
                 
     .stApp {
-    background: linear-gradient(180deg, #ebeef5 0%, #b3b8c4  100%);
-    color: #030e26;
+    background: #ffffff;
+    color: #111827;
     font-family: 'Inter', sans-serif;
     }
 
