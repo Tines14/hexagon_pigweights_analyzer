@@ -431,6 +431,18 @@ def render():
 
     st.markdown("""
     <style>
+                
+    .stApp {
+    background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+    color: #e5e7eb;
+    font-family: 'Inter', sans-serif;
+    }
+
+    /* Remove default padding */
+    .block-container {
+    padding-top: 2rem;
+    }
+
 
     /* -------- Page Header -------- */
     .page-header {
