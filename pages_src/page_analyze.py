@@ -486,8 +486,6 @@ def render():
     .metric-card:hover {
     transform: translateY(-4px);
     border:1px solid #22c55e;
-    box-shadow: 0 0 20px rgba(34,197,94,0.5);
-}
     }           
 
     .metric-card .val {
