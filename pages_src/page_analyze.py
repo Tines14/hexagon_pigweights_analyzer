@@ -184,16 +184,18 @@ def _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2):
 
 # ─── Mask cleaning (ตาม notebook clean_pig_mask) ─────────────────────────────
 def clean_pig_mask(mask_float, use_blur=True):
-    """Clean the mask using morphology (matching the notebook)."""
     import cv2
     mask_uint8 = (mask_float * 255).astype(np.uint8)
     if use_blur:
         mask_uint8 = cv2.GaussianBlur(mask_uint8, (5, 5), 0)
         _, mask_uint8 = cv2.threshold(mask_uint8, 127, 255, cv2.THRESH_BINARY)
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
-    mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_CLOSE, kernel)
-    mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_OPEN,
-                                   cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
+
+    # ✅ ตรงกับ Notebook
+    kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    kernel_open  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_CLOSE, kernel_close)
+    mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_OPEN,  kernel_open)
+
     # เก็บเฉพาะ component ที่ใหญ่สุด
     n_labels, labels, stats, _ = cv2.connectedComponentsWithStats(mask_uint8)
     if n_labels > 1:
