@@ -469,6 +469,11 @@ def render():
         transition: 0.3s ease;
     }
 
+    .metric-card:hover {
+    transform: translateY(-4px);
+    border:1px solid #22c55e;
+    }           
+
     .metric-card .val {
         font-size:22px;
         font-weight:700;
@@ -476,7 +481,7 @@ def render():
 
     .metric-card .lbl {
         font-size:12px;
-        color:#aaa;
+        color:#9ca3af;
         margin-top:4px;
     }
 
