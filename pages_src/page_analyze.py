@@ -185,31 +185,42 @@ def _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2):
 
 
 # ─── Mask cleaning (ตาม notebook clean_pig_mask) ─────────────────────────────
-def clean_pig_mask(mask_float, use_blur=True):
-    import cv2
-    mask_uint8 = (mask_float * 255).astype(np.uint8)
+def select_largest_mask(mask):
+    binary_mask = (mask > 0).astype(np.uint8)
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary_mask, connectivity=8)
+    if num_labels <= 1:
+        return mask
+    largest_label = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])
+    return np.where(labels == largest_label, 255, 0).astype(np.uint8)
+
+def clean_pig_mask(raw_mask, use_blur=True):
+    mask = raw_mask.copy()
+    if mask.max() <= 1.0:
+        mask = (mask * 255).astype(np.uint8)
+    else:
+        mask = mask.astype(np.uint8)
+
+    # Step 1: largest mask
+    mask = select_largest_mask(mask)
+
+    # Step 2: morphology
+    close_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    open_kernel  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, close_kernel)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,  open_kernel)
+
+    # Step 3: fill holes
+    from scipy import ndimage
+    binary = (mask > 0).astype(np.uint8)
+    filled = ndimage.binary_fill_holes(binary).astype(np.uint8)
+    mask = (filled * 255).astype(np.uint8)
+
+    # Step 4: smooth edges
     if use_blur:
-        mask_uint8 = cv2.GaussianBlur(mask_uint8, (5, 5), 0)
-        _, mask_uint8 = cv2.threshold(mask_uint8, 127, 255, cv2.THRESH_BINARY)
+        mask = cv2.GaussianBlur(mask, (5, 5), 0)
+        _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
 
-    # ✅ ตรงกับ Notebook
-    kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    kernel_open  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-    mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_CLOSE, kernel_close)
-    mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_OPEN,  kernel_open)
-
-    # fill holes ด้วย cv2 แทน scipy
-    contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    mask_filled = np.zeros_like(mask_uint8)
-    cv2.drawContours(mask_filled, contours, -1, 255, thickness=cv2.FILLED)
-    mask_uint8 = mask_filled
-
-    # เก็บเฉพาะ component ที่ใหญ่สุด
-    n_labels, labels, stats, _ = cv2.connectedComponentsWithStats(mask_uint8)
-    if n_labels > 1:
-        largest = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])
-        mask_uint8 = np.where(labels == largest, 255, 0).astype(np.uint8)
-    return mask_uint8
+    return mask
 
 
 def mask_to_pil(mask_uint8):
@@ -314,7 +325,7 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
             feat_values = np.array(features_list).mean(axis=0)  # shape: (7,)
             # map ตามลำดับจาก SELECTED_FEATURES → feat_names
             feat_map    = dict(zip(SELECTED_FEATURES, feat_values))
-            
+
             import pandas as pd
             ordered_df = pd.DataFrame([[feat_map.get(f, 0.0) for f in feat_names]], 
                            columns=feat_names)
