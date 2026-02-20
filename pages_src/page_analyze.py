@@ -306,7 +306,7 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
             with st.expander(f"Debug Predict: {filename}", expanded=False):
                 st.write("**Features after scaling:**", ordered.tolist())
                 st.write("**Predicted weight (kg):**", weight_kg)
-                
+
         except Exception as e:
             st.warning(f"RF error: {e}")
 
@@ -532,9 +532,9 @@ files in cwd:
 
     # ── Summary metrics ──────────────────────────────────────────────────────
     weights = [r["weight_kg"] for r in results]
-    avg_w   = round(sum(weights) / len(weights))
-    min_w   = round(min(weights))
-    max_w   = round(max(weights))
+    avg_w   = round(sum(weights) / len(weights), 3)
+    min_w   = round(min(weights), 3)
+    max_w   = round(max(weights), 3)
     
 
     st.markdown(f"""
