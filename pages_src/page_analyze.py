@@ -304,12 +304,11 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
             weight_kg = float(rf_model.predict(ordered)[0])
 
             # ── Debug: แสดงค่าหลัง scale และผลลัพธ์ ──────────────────────
-            """"
+            """
             with st.expander(f"Debug Predict: {filename}", expanded=False):
                 st.write("**Features after scaling:**", ordered.tolist())
                 st.write("**Predicted weight (kg):**", weight_kg)
-            """"
-
+            """
         except Exception as e:
             st.warning(f"RF error: {e}")
 
