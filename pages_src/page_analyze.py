@@ -281,7 +281,6 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
 
                     # ── Debug: แสดงค่า feature ──────────────────────────────
                     feat_dict = dict(zip(SELECTED_FEATURES, feat))
-                    st.expander(f"Debug Features: {filename}") and None
                     with st.expander(f"Debug Features: {filename}", expanded=False):
                         st.write("**Raw features (before scale):**", feat_dict)
 
