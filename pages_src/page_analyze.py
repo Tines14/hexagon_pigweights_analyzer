@@ -277,6 +277,12 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
                     feat = _extract_mask_features(img_array, masks, idx, x1, y1, x2, y2)
                     features_list.append(feat)
 
+                    # ── Debug: แสดงค่า feature ──────────────────────────────
+                    feat_dict = dict(zip(SELECTED_FEATURES, feat))
+                    st.expander(f"Debug Features: {filename}") and None
+                    with st.expander(f"Debug Features: {filename}", expanded=False):
+                        st.write("**Raw features (before scale):**", feat_dict)
+
                     break  # ใช้เฉพาะ pig ตัวแรก (ตาม notebook)
         except Exception as e:
             st.warning(f"YOLO error: {e}")
@@ -295,6 +301,12 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
             if scaler is not None:
                 ordered = scaler.transform(ordered)
             weight_kg = float(rf_model.predict(ordered)[0])
+
+            # ── Debug: แสดงค่าหลัง scale และผลลัพธ์ ──────────────────────
+            with st.expander(f"Debug Predict: {filename}", expanded=False):
+                st.write("**Features after scaling:**", ordered.tolist())
+                st.write("**Predicted weight (kg):**", weight_kg)
+                
         except Exception as e:
             st.warning(f"RF error: {e}")
 
