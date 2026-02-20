@@ -554,13 +554,15 @@ def render():
 
     .stButton > button {
         
-        background: linear-gradient(
-            135deg,
-            #14532d 0%,
-            #16a34a 30%,
-            #22c55e 60%,
-            #4ade80 100%
-        );
+        .stButton > button {
+        background-color: #22c55e;   
+        color: white;
+        border-radius: 14px;
+        border: none;
+        padding: 0.6rem 1rem;
+        font-weight: 600;
+        transition: 0.2s ease-in-out;
+    }
         color: white;
         border-radius: 15px;
         border:none;
@@ -570,6 +572,7 @@ def render():
     }
 
     .stButton > button:hover {
+        background-color: #16a34a;
         transform: scale(1.03);
     }
 
