@@ -239,7 +239,15 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
     # ── YOLO inference ──────────────────────────────────────────────────────
     if yolo_model is not None:
         try:
-            results = yolo_model(img_array, verbose=False)
+            # ✅ บันทึกเป็น temp file แล้วส่ง path เหมือน Colab
+            import tempfile
+            with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
+                tmp_path = tmp.name
+                cv2.imwrite(tmp_path, cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR))
+            
+            results = yolo_model.predict(tmp_path, verbose=False)
+            os.remove(tmp_path)
+            
             for r in results:
                 masks = r.masks  # segmentation masks (None ถ้า YOLO detect-only)
 
