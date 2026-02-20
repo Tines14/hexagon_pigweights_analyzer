@@ -460,11 +460,13 @@ def render():
 
     .metric-card {
         background:#1f1f2e;
+        backdrop-filter: blur(10px);
         padding:18px 26px;
         border-radius:14px;
         text-align:center;
         min-width:150px;
         border:1px solid #2a2a4a;
+        transition: 0.3s ease;
     }
 
     .metric-card .val {
