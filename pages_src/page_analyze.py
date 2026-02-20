@@ -196,7 +196,7 @@ def clean_pig_mask(mask_float, use_blur=True):
     mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_CLOSE, kernel_close)
     mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_OPEN,  kernel_open)
 
-    # ✅ fill holes ด้วย cv2 แทน scipy
+    # fill holes ด้วย cv2 แทน scipy
     contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     mask_filled = np.zeros_like(mask_uint8)
     cv2.drawContours(mask_filled, contours, -1, 255, thickness=cv2.FILLED)
@@ -294,7 +294,7 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
                     features_list.append(feat)
 
                     # ── Debug: แสดงค่า feature ──────────────────────────────
-                    
+
                     feat_dict = dict(zip(SELECTED_FEATURES, feat))
                     with st.expander(f"Debug Features: {filename}", expanded=False):
                         st.write("**Raw features (before scale):**", feat_dict)
