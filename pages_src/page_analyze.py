@@ -433,18 +433,20 @@ def render():
     /* -------- Page Header -------- */
     .page-header {
         text-align:center;
-        padding: 20px 0 10px 0;
+        padding: 10px 0 25px 0;
     }
 
     .page-header h1 {
         font-size: 32px;
         font-weight: 600;
-        margin-bottom: 6px;
+        background: linear-gradient(90deg, #22c55e, #38bdf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     .page-header p {
         font-size: 14px;
-        color: #888;
+        color: #9ca3af;
     }
 
     /* -------- Metric Cards -------- */
