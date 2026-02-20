@@ -531,8 +531,8 @@ def render():
     # Header
     st.markdown("""
         <div class="page-header">
-            <h1>วิเคราะห์น้ำหนักสุกร</h1>
-            <p>Upload group photos — supports single photos, multiple photos, or .zip files.</p>
+            <h1>Smart Pig Weight AI</h1>
+            <p>Computer Vision • YOLO Segmentation • Machine Learning • AgriTech Analytics</p>
         </div>
     """, unsafe_allow_html=True)
 
