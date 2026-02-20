@@ -502,7 +502,7 @@ def render():
         margin-top:10px;
         font-size:26px;
         font-weight:700;
-        color:#e94560;
+        color:#e6f2f0;
     }
 
     /* -------- Pig List Row -------- */
