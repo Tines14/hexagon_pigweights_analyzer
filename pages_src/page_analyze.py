@@ -278,11 +278,12 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
                     features_list.append(feat)
 
                     # ── Debug: แสดงค่า feature ──────────────────────────────
-
+                    """
                     feat_dict = dict(zip(SELECTED_FEATURES, feat))
                     with st.expander(f"Debug Features: {filename}", expanded=False):
                         st.write("**Raw features (before scale):**", feat_dict)
-                    
+                    """
+
                     break  # ใช้เฉพาะ pig ตัวแรก (ตาม notebook)
         except Exception as e:
             st.warning(f"YOLO error: {e}")
@@ -309,11 +310,12 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
             
 
             # ── Debug: แสดงค่าหลัง scale และผลลัพธ์ ──────────────────────
-            
+            """
             with st.expander(f"Debug Predict: {filename}", expanded=False):
                 st.write("**Features after scaling:**", ordered.tolist())
                 st.write("**Predicted weight (kg):**", weight_kg)
-            
+            """
+
         except Exception as e:
             st.warning(f"RF error: {e}")
 
@@ -487,11 +489,12 @@ def render():
 
     /* -------- Result Card -------- */
     .result-card {
-        background:#1f1f2e;
+        background: rgba(255,255,255,0.04);
+        border:1px solid rgba(255,255,255,0.08);
         padding:20px;
-        border-radius:16px;
-        border:1px solid #2a2a4a;
+        border-radius:25px;
         margin-top:20px;
+        backdrop-filter: blur(12px);
     }
 
     /* -------- Weight Badge -------- */
