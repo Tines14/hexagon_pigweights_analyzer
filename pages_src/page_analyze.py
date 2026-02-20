@@ -480,7 +480,7 @@ def render():
     }
 
     .metric-card .lbl {
-        font-size:1px;
+        font-size:14px;
         color:#9ca3af;
         margin-top:4px;
     }
