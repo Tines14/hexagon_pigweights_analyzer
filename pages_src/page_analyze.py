@@ -196,6 +196,10 @@ def clean_pig_mask(mask_float, use_blur=True):
     mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_CLOSE, kernel_close)
     mask_uint8 = cv2.morphologyEx(mask_uint8, cv2.MORPH_OPEN,  kernel_open)
 
+    # ✅ เพิ่ม fill holes — อุดรูโหว่ในตัวหมู
+    filled = binary_fill_holes(mask_uint8 > 0).astype(np.uint8) * 255
+    mask_uint8 = filled
+
     # เก็บเฉพาะ component ที่ใหญ่สุด
     n_labels, labels, stats, _ = cv2.connectedComponentsWithStats(mask_uint8)
     if n_labels > 1:
