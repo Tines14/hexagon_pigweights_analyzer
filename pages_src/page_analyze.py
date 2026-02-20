@@ -870,22 +870,28 @@ def render():
     st.markdown("""
         <style>
         div.stDownloadButton > button {
-            background-color: #1f4ed8;
+            background: linear-gradient(90deg, #2563eb, #38bdf8);
             color: white;
-            border-radius: 8px;
-            height: 45px;
+            border-radius: 12px;
+            height: 48px;
             font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: 0.2s ease-in-out;
         }
         div.stDownloadButton > button:hover {
-            background-color: #1e40af;
-            color: white;
+            transform: scale(1.05);
         }
         </style>
         """, unsafe_allow_html=True)
 
-    st.download_button(
-        "⬇️ Download Excel",
-        excel_bytes,
-        "pig_weight_results.xlsx",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    )
+    if EXCEL_AVAILABLE and results is not None and len(results) > 0:
+        excel_bytes = build_excel(results)
+
+        st.download_button(
+            label="Download Excel",
+            data=excel_bytes,
+            file_name="pig_weight_results.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+    else:
+        st.warning("⚠️ No results to export")
