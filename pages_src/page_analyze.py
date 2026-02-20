@@ -437,8 +437,8 @@ def render():
     }
 
     .page-header h1 {
-        font-size: 34px;
-        font-weight: 700;
+        font-size: 32px;
+        font-weight: 600;
         margin-bottom: 6px;
     }
 
