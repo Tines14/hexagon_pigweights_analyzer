@@ -16,7 +16,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
 
-from sympy import ordered
+#from sympy import ordered
 
 # ─── Try importing model libraries ────────────────────────────────────────────
 try:
@@ -183,10 +183,8 @@ def clean_pig_mask(raw_mask, use_blur=True):
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,  open_kernel)
 
     # Step 3: fill holes
-    from scipy import ndimage
-    binary = (mask > 0).astype(np.uint8)
-    filled = ndimage.binary_fill_holes(binary).astype(np.uint8)
-    mask = (filled * 255).astype(np.uint8)
+    contours_fill, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(mask, contours_fill, -1, 255, thickness=cv2.FILLED)
 
     # Step 4: smooth edges
     if use_blur:
