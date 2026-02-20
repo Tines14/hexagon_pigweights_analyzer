@@ -433,7 +433,7 @@ def render():
     /* -------- Page Header -------- */
     .page-header {
         text-align:center;
-        padding: 20px 0 10px 0;
+        padding: 10px 0 25px 0;
     }
 
     .page-header h1 {
