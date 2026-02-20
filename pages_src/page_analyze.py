@@ -426,6 +426,179 @@ def get_pig_stage(weight_kg):
 # RENDER
 # ═══════════════════════════════════════════════════════════════════════════════
 def render():
+
+    st.markdown("""
+    <style>
+
+    /* ============================= */
+    /* GLOBAL THEME */
+    /* ============================= */
+
+    .stApp {
+        background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+        color: #e5e7eb;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Remove default padding */
+    .block-container {
+        padding-top: 2rem;
+    }
+
+    /* ============================= */
+    /* HEADER */
+    /* ============================= */
+
+    .page-header {
+        text-align:center;
+        padding: 10px 0 25px 0;
+    }
+
+    .page-header h1 {
+        font-size: 36px;
+        font-weight: 700;
+        background: linear-gradient(90deg, #22c55e, #38bdf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-header p {
+        font-size: 14px;
+        color: #9ca3af;
+    }
+
+    /* ============================= */
+    /* METRIC CARDS */
+    /* ============================= */
+
+    .metric-row {
+        display:flex;
+        gap:20px;
+        justify-content:center;
+        flex-wrap:wrap;
+        margin: 25px 0;
+    }
+
+    .metric-card {
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(10px);
+        padding:20px 30px;
+        border-radius:18px;
+        border:1px solid rgba(255,255,255,0.08);
+        min-width:180px;
+        transition: 0.3s ease;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-4px);
+        border:1px solid #22c55e;
+    }
+
+    .metric-card .val {
+        font-size:26px;
+        font-weight:700;
+    }
+
+    .metric-card .lbl {
+        font-size:12px;
+        color:#9ca3af;
+        margin-top:6px;
+    }
+
+    /* ============================= */
+    /* RESULT CARD */
+    /* ============================= */
+
+    .result-card {
+        background: rgba(255,255,255,0.04);
+        border:1px solid rgba(255,255,255,0.08);
+        border-radius:20px;
+        padding:25px;
+        margin-top:20px;
+        backdrop-filter: blur(12px);
+    }
+
+    .weight-badge {
+        margin-top:14px;
+        font-size:34px;
+        font-weight:700;
+        color:#22c55e;
+    }
+
+    /* ============================= */
+    /* PIG LIST ROW */
+    /* ============================= */
+
+    .pig-row {
+        display:flex;
+        justify-content:space-between;
+        padding:14px 18px;
+        border-radius:14px;
+        margin-bottom:8px;
+        background: rgba(255,255,255,0.03);
+        border:1px solid rgba(255,255,255,0.05);
+        transition:0.2s;
+    }
+
+    .pig-row:hover {
+        background: rgba(34,197,94,0.08);
+        border:1px solid #22c55e;
+    }
+
+    .pig-name {
+        font-weight:600;
+    }
+
+    .pig-wt {
+        font-weight:700;
+        color:#22c55e;
+    }
+
+    /* ============================= */
+    /* FILE UPLOADER */
+    /* ============================= */
+
+    section[data-testid="stFileUploader"] {
+        border:2px dashed rgba(34,197,94,0.5);
+        padding:30px;
+        border-radius:18px;
+        background: rgba(255,255,255,0.03);
+    }
+
+    /* ============================= */
+    /* BUTTONS */
+    /* ============================= */
+
+    .stButton > button {
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+        color: white;
+        border-radius: 12px;
+        border:none;
+        padding: 0.6rem 1rem;
+        font-weight:600;
+        transition:0.3s;
+    }
+
+    .stButton > button:hover {
+        transform: scale(1.03);
+    }
+
+    /* ============================= */
+    /* SCROLLBAR */
+    /* ============================= */
+
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #22c55e;
+        border-radius: 4px;
+    }
+
+    </style>
+    """, unsafe_allow_html=True)
+
     # Header
     st.markdown("""
         <div class="page-header">
