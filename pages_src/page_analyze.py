@@ -486,6 +486,8 @@ def render():
     .metric-card:hover {
     transform: translateY(-4px);
     border:1px solid #22c55e;
+    box-shadow: 0 0 20px rgba(34,197,94,0.5);
+}
     }           
 
     .metric-card .val {
@@ -553,12 +555,19 @@ def render():
     /* ============================= */
 
     .stButton > button {
-        background: linear-gradient(90deg, #22c55e, #16a34a);
+        
+        background: linear-gradient(
+            135deg,
+            #14532d 0%,
+            #16a34a 30%,
+            #22c55e 60%,
+            #4ade80 100%
+        );
         color: white;
-        border-radius: 12px;
+        border-radius: 15px;
         border:none;
         padding: 0.6rem 1rem;
-        font-weight:600;
+        font-weight:500;
         transition:0.3s;
     }
 
@@ -872,7 +881,7 @@ def render():
         div.stDownloadButton > button {
             background: linear-gradient(90deg, #2563eb, #38bdf8);
             color: white;
-            border-radius: 12px;
+            border-radius: 20px;
             height: 48px;
             font-weight: 600;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -888,7 +897,7 @@ def render():
         excel_bytes = build_excel(results)
 
         st.download_button(
-            label="Download Excel",
+            label="Download Report",
             data=excel_bytes,
             file_name="pig_weight_results.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
