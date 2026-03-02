@@ -28,8 +28,90 @@ def _get_model_path(filename):
             return p
     return None
 
+def _build_search_paths(filename):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    cwd = os.getcwd()
+    paths = [
+        filename,
+        os.path.join(cwd, filename),
+        os.path.join(script_dir, filename),
+        os.path.join(script_dir, "..", filename),
+        os.path.join(script_dir, "..", "..", filename),
+    ]
+    for base in ["/mount/src", "/app", "/home/appuser"]:
+        if os.path.isdir(base):
+            paths.append(os.path.join(base, filename))
+            try:
+                for lvl1 in os.listdir(base):
+                    p1 = os.path.join(base, lvl1)
+                    paths.append(os.path.join(p1, filename))
+                    if os.path.isdir(p1):
+                        try:
+                            for lvl2 in os.listdir(p1):
+                                paths.append(os.path.join(p1, lvl2, filename))
+                        except PermissionError:
+                            pass
+            except PermissionError:
+                pass
+    return paths
+
+def _find_model(filename):
+    for p in _build_search_paths(filename):
+        try:
+            if os.path.exists(p):
+                return os.path.realpath(p)
+        except Exception:
+            continue
+    return None
+
 
 def render():
+    st.markdown("""
+    <style>
+
+    .stApp {
+        background: #ffffff;
+        color: #111827;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .block-container {
+        padding-top: 2rem;
+    }
+
+    .page-header {
+        text-align: center;
+        padding: 10px 0 25px 0;
+    }
+
+    .page-header h1 {
+        font-size: 32px;
+        font-weight: 600;
+        background: linear-gradient(90deg, #22c55e, #38bdf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-header p {
+        font-size: 14px;
+        color: #9ca3af;
+    }
+
+    .result-card {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 20px;
+        border-radius: 25px;
+        margin-top: 20px;
+        backdrop-filter: blur(12px);
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 4px; }
+
+    </style>
+    """, unsafe_allow_html=True)
+
     st.markdown("""
         <div class="page-header">
             <h1>About System</h1>
@@ -97,6 +179,56 @@ def render():
                 </div>
             </div>
         """, unsafe_allow_html=True)
+
+    # ─── Debug Info ───────────────────────────────────────────────────────────
+    st.markdown("---")
+    st.markdown("### 🐛 Debug Info")
+
+    try:
+        import joblib
+        JOBLIB_AVAILABLE = True
+    except ImportError:
+        JOBLIB_AVAILABLE = False
+
+    try:
+        from ultralytics import YOLO as _YOLO
+        YOLO_AVAILABLE = True
+    except ImportError:
+        YOLO_AVAILABLE = False
+
+    # ดึงข้อมูล scaler และ selected_features จาก session_state ถ้ามี
+    scaler_loaded = False
+    sf_loaded     = None
+    try:
+        import joblib
+        scaler_path = _find_model("feature_scaler.pkl")
+        scaler_loaded = scaler_path is not None
+        sf_path = _find_model("selected_features.pkl")
+        if sf_path:
+            sf_loaded = joblib.load(sf_path)
+    except Exception:
+        pass
+
+    with st.expander("Debug: click to view"):
+        st.code(f"""
+            **Path information**
+            cwd          : {os.getcwd()}
+            __file__     : {os.path.abspath(__file__)}
+            best.pt found: {_find_model('best.pt') or 'NOT FOUND'}
+            rf.pkl found : {_find_model('random_forest.pkl') or 'NOT FOUND'}
+            YOLO_AVAILABLE : {YOLO_AVAILABLE}
+            JOBLIB_AVAILABLE : {JOBLIB_AVAILABLE}
+            yolo_model loaded: {exists}
+            rf_model loaded  : {exists2}
+            scaler loaded    : {scaler_loaded}
+            selected_features: {sf_loaded}
+
+            files in cwd:
+            {chr(10).join(sorted(os.listdir(os.getcwd())))}
+
+            /mount/src exists: {os.path.isdir('/mount/src')}
+            {'/mount/src contents: ' + str(os.listdir('/mount/src')) if os.path.isdir('/mount/src') else ''}
+            """)
 
     # ─── Pipeline ────────────────────────────────────────────────────────────
     st.markdown("---")
