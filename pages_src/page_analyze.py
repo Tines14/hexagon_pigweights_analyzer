@@ -577,6 +577,51 @@ def render():
         border-radius: 4px;
     }
 
+    /* ============================= */
+    /* SIDEBAR / NAV MENU            */
+    /* ============================= */
+
+    [data-testid="stSidebar"] {
+        background: #0f0f1a !important;
+        border-right: 1px solid #1e1e3a;
+    }
+
+    [data-testid="stSidebar"] * {
+        color: #d1d5db !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    [data-testid="stSidebarNav"] a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        margin: 4px 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #9ca3af !important;
+        text-decoration: none !important;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    [data-testid="stSidebarNav"] a:hover {
+        background: rgba(34,197,94,0.12);
+        color: #22c55e !important;
+    }
+
+    [data-testid="stSidebarNav"] a[aria-current="page"] {
+        background: rgba(34,197,94,0.18);
+        color: #22c55e !important;
+        font-weight: 700;
+        border-left: 3px solid #22c55e;
+    }
+
+    [data-testid="stSidebarHeader"] {
+        padding: 20px 16px 10px 16px;
+        border-bottom: 1px solid #1e1e3a;
+    }
+
     </style>
     """, unsafe_allow_html=True)
     
@@ -593,19 +638,6 @@ def render():
     rf_model          = load_rf()
     scaler            = load_scaler()
     selected_features = load_selected_features()
-
-    # สถานะโมเดล
-    col_m1, col_m2 = st.columns(2)
-    with col_m1:
-        if yolo_model:
-            st.success("✅ best.pt file loaded successfully.")
-        else:
-            st.warning("⚠️ best.pt not found — Use Demo mode.")
-    with col_m2:
-        if rf_model:
-            st.success("✅ random_forest.pkl loaded successfully.")
-        else:
-            st.warning("⚠️ random_forest.pkl not found — Use Demo mode.")
 
     if "upload_key" not in st.session_state:
         st.session_state.upload_key = 0
