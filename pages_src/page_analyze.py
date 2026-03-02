@@ -277,13 +277,6 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
                     feat = _extract_features_from_clean(clean_uint8)
                     features_list.append(feat)
 
-                    # ── Debug: แสดงค่า feature ──────────────────────────────
-                    """
-                    feat_dict = dict(zip(SELECTED_FEATURES, feat))
-                    with st.expander(f"Debug Features: {filename}", expanded=False):
-                        st.write("**Raw features (before scale):**", feat_dict)
-                    """
-
                     break  # ใช้เฉพาะ pig ตัวแรก (ตาม notebook)
         except Exception as e:
             st.warning(f"YOLO error: {e}")
@@ -307,14 +300,6 @@ def analyze_pig_image(pil_image: Image.Image, filename: str,
                 ordered = ordered_df.values
 
             weight_kg = float(rf_model.predict(ordered)[0])
-            
-
-            # ── Debug: แสดงค่าหลัง scale และผลลัพธ์ ──────────────────────
-            """
-            with st.expander(f"Debug Predict: {filename}", expanded=False):
-                st.write("**Features after scaling:**", ordered.tolist())
-                st.write("**Predicted weight (kg):**", weight_kg)
-            """
 
         except Exception as e:
             st.warning(f"RF error: {e}")
@@ -621,29 +606,6 @@ def render():
             st.success("✅ random_forest.pkl loaded successfully.")
         else:
             st.warning("⚠️ random_forest.pkl not found — Use Demo mode.")
-
-    # ─── Debug info (ช่วย troubleshoot path บน Streamlit Cloud) ────────────────
-    with st.expander("Debug: click to view"):
-        import glob
-        st.code(f"""
-            **Path information**
-            cwd          : {os.getcwd()}
-            __file__     : {os.path.abspath(__file__)}
-            best.pt found: {_find_model('best.pt') or 'NOT FOUND'}
-            rf.pkl found : {_find_model('random_forest.pkl') or 'NOT FOUND'}
-            YOLO_AVAILABLE : {YOLO_AVAILABLE}
-            JOBLIB_AVAILABLE : {JOBLIB_AVAILABLE}
-            yolo_model loaded: {yolo_model is not None}
-            rf_model loaded  : {rf_model is not None}
-            scaler loaded    : {scaler is not None}
-            selected_features: {selected_features}
-
-            files in cwd:
-            {chr(10).join(sorted(os.listdir(os.getcwd())))}
-
-            /mount/src exists: {os.path.isdir('/mount/src')}
-            {'/mount/src contents: ' + str(os.listdir('/mount/src')) if os.path.isdir('/mount/src') else ''}
-            """)
 
     if "upload_key" not in st.session_state:
         st.session_state.upload_key = 0
